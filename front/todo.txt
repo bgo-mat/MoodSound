@@ -1,12 +1,6 @@
 🎯 Tickets Front-end Ionic
 🚩 Préparation & Setup
 
-F-01 | Installer Ionic (avec Capacitor) et créer la structure initiale du projet.
-
-F-02 | Configurer les dépendances (axios, capacitor-camera, capacitor-geolocation, capacitor-motion, etc.).
-
-    F-03 | Connecter l’app avec l’API Django via Axios (config API dans un service dédié).
-
 🔑 Authentification
 
 F-04 | Mise en place d’un système d’authentification OAuth (Spotify ou Deezer).
