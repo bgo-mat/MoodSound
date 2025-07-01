@@ -1,0 +1,91 @@
+🎯 Tickets Front-end Ionic
+🚩 Préparation & Setup
+
+F-01 | Installer Ionic (avec Capacitor) et créer la structure initiale du projet.
+
+F-02 | Configurer les dépendances (axios, capacitor-camera, capacitor-geolocation, capacitor-motion, etc.).
+
+    F-03 | Connecter l’app avec l’API Django via Axios (config API dans un service dédié).
+
+🔑 Authentification
+
+F-04 | Mise en place d’un système d’authentification OAuth (Spotify ou Deezer).
+
+    F-05 | Écran de connexion et gestion du token utilisateur côté Ionic (stockage sécurisé).
+
+📱 Détection du Mood
+
+F-06 | Intégrer et tester l’accès à la caméra frontale (détection faciale avec API externe via backend).
+
+F-07 | Intégrer et tester l’accès au microphone pour analyse sonore ambiante.
+
+F-08 | Intégrer et tester l’accéléromètre et le gyroscope (activité physique).
+
+    F-09 | Envoyer ces données captées au backend pour l’analyse du mood via OpenAI.
+
+🎶 Intégration Spotify/Deezer
+
+F-10 | Récupérer et afficher les playlists personnelles depuis Spotify ou Deezer.
+
+F-11 | Récupérer et afficher les chansons recommandées par le backend selon le mood détecté.
+
+    F-12 | Créer et gérer une playlist personnalisée basée sur le mood.
+
+✨ UI/UX Design
+
+F-13 | Concevoir et intégrer les écrans : accueil, détection mood, playlist recommandée, gestion profil.
+
+F-14 | Ajouter feedback utilisateur visuel après chaque détection d'émotion (animations discrètes, indications claires).
+
+    F-15 | Assurer un design adaptatif et fluide (responsive).
+
+🧪 Tests et correction de bugs
+
+F-16 | Tester toutes les fonctionnalités sur émulateur/téléphone réel.
+
+    F-17 | Corriger les bugs et optimiser les performances générales.
+
+🎯 Tickets Back-end Django
+🚩 Préparation & Setup
+
+B-01 | Installation et création d’un projet Django avec Django Rest Framework (DRF).
+
+B-02 | Installation et configuration de la librairie OpenAI Python.
+
+    B-03 | Mise en place du modèle de gestion utilisateur (OAuth).
+
+🌐 API Django Rest Framework
+
+B-04 | Créer endpoints pour recevoir les données captées depuis Ionic (JSON avec données caméra, micro, accéléromètre).
+
+    B-05 | Créer endpoints pour gérer la récupération et stockage temporaire des playlists et tracks depuis Spotify/Deezer.
+
+🤖 Intégration OpenAI
+
+B-06 | Intégrer OpenAI GPT-4-turbo : créer prompts pour analyser les données reçues (caméra, micro, activité physique).
+
+B-07 | Créer endpoint pour analyser les données du frontend et retourner l’humeur détectée.
+
+    B-08 | Créer endpoint pour recommander des playlists adaptées à l'humeur détectée (générées par OpenAI).
+
+🎵 Intégration Spotify / Deezer côté serveur
+
+B-09 | Mise en place du flux OAuth Spotify ou Deezer côté serveur (gestion tokens d’accès et refresh).
+
+B-10 | Endpoint pour récupérer et traiter les playlists existantes de l'utilisateur.
+
+    B-11 | Endpoint pour créer/gérer des playlists automatiquement depuis l’app Django vers Spotify/Deezer.
+
+🔐 Sécurité & Performance
+
+B-12 | Mise en place d’une validation stricte des données entrantes (serializers DRF).
+
+B-13 | Gestion sécurisée des tokens utilisateurs et des données personnelles (RGPD-compliant).
+
+    B-14 | Optimisation des requêtes OpenAI (caching réponses fréquentes pour limiter coûts).
+
+🧪 Tests & Documentation
+
+B-15 | Tests unitaires et fonctionnels des endpoints.
+
+B-16 | Documentation claire des endpoints API (Swagger/OpenAPI).
