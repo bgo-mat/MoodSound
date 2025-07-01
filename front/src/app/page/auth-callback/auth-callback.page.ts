@@ -12,7 +12,7 @@ export class AuthCallbackPage implements OnInit {
   constructor(private auth: SpotifyAuthService, private router: Router) {}
 
   async ngOnInit() {
-    await this.auth.handleAuthCallback(window.location.hash);
+    await this.auth.handleAuthCallback(window.location.search);
     await this.router.navigateByUrl('/');
   }
 }
