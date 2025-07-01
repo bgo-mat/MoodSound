@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {queryParams} from "./api-management.service";
@@ -7,7 +7,7 @@ import {queryParams} from "./api-management.service";
   providedIn: 'root'
 })
 export class ExternalApiManagementService {
-  constructor(private _http: HttpClient) {}
+  private _http = inject(HttpClient);
 
   get<T>(url: string, options: {
     params?: queryParams,

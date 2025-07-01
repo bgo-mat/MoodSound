@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { SpotifyAuthService } from './spotify-auth.service';
 
@@ -6,7 +6,8 @@ import { SpotifyAuthService } from './spotify-auth.service';
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
-  constructor(private auth: SpotifyAuthService, private router: Router) {}
+  private auth = inject(SpotifyAuthService);
+  private router = inject(Router);
 
   async canActivate(): Promise<boolean> {
     const token = await this.auth.getToken();
