@@ -1,14 +1,15 @@
-import os
 import requests
-
+from django.conf import settings
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-
+client_id = settings.SPOTIFY_CLIENT_ID
+client_secret = settings.SPOTIFY_CLIENT_SECRET
 def spotify_login(request):
     """Redirect user to Spotify authorization page."""
-    client_id = os.environ.get("SPOTIFY_CLIENT_ID")
+    print('client_id :',client_id, flush=True)
+    print('client_secret :',client_secret, flush=True)
     redirect_uri = request.build_absolute_uri(reverse("spotify-callback"))
     scopes = "user-read-email playlist-read-private"
 
@@ -30,8 +31,6 @@ def spotify_callback(request):
         return JsonResponse({"error": "missing code"}, status=400)
 
     token_url = "https://accounts.spotify.com/api/token"
-    client_id = os.environ.get("SPOTIFY_CLIENT_ID")
-    client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET")
     redirect_uri = request.build_absolute_uri(reverse("spotify-callback"))
 
     data = {
