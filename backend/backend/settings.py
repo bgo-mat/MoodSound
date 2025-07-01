@@ -9,6 +9,7 @@ SECRET_KEY = 'django-insecure-ky2$#+js%vftp2=pd5vx18m^ejg=7)^b#yql!f17c&da!q=%nr
 
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI", "myapp://callback")
 DEBUG = True
 IN_PROD = os.getenv("IN_PROD", "False") == "True"
 ALLOWED_HOSTS = ["*"]
@@ -27,7 +28,7 @@ CORS_ALLOWED_ORIGINS = (
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:4200",
-    os.getenv("FRONTEND_URL"),
+    os.getenv("FRONTEND_URL", "http://localhost:8100"),
 ]
 
 if IN_PROD:

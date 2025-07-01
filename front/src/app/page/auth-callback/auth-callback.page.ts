@@ -13,7 +13,7 @@ export class AuthCallbackPage implements OnInit {
   private router = inject(Router);
 
   async ngOnInit() {
-    await this.auth.handleAuthCallback(window.location.search);
+    await this.auth.handleAuthCallback(window.location.href);
     await this.router.navigateByUrl('/');
   }
 }

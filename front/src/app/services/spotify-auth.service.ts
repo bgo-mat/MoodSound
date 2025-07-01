@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 const TOKEN_KEY = 'spotify_token';
@@ -9,6 +11,7 @@ const TOKEN_KEY = 'spotify_token';
 })
 export class SpotifyAuthService {
   private token: string | null = null;
+  private http = inject(HttpClient);
 
   constructor() {}
 
@@ -26,14 +29,31 @@ export class SpotifyAuthService {
   }
 
   login() {
-    window.location.href = `${environment.apiUrl}/spotify/login/`;
+    const scopes = 'user-read-email playlist-read-private';
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: environment.spotifyClientId,
+      redirect_uri: environment.spotifyRedirectUri,
+      scope: scopes
+    });
+    window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
   }
 
-  async handleAuthCallback(query: string) {
-    const params = new URLSearchParams(query.replace('?', ''));
-    const token = params.get('token');
-    if (token) {
-      await this.setToken(token);
+  async handleAuthCallback(url: string) {
+    const params = new URL(url).searchParams;
+    const code = params.get('code');
+    if (code) {
+      await this.exchangeCode(code);
+    }
+  }
+
+  private async exchangeCode(code: string) {
+    const body = new URLSearchParams({ code });
+    const tokenInfo = await firstValueFrom(
+      this.http.post<any>(`${environment.apiUrl}/spotify/token/`, body)
+    );
+    if (tokenInfo.access_token) {
+      await this.setToken(tokenInfo.access_token);
     }
   }
 
