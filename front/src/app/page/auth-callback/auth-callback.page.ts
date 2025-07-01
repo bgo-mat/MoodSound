@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonContent, IonSpinner } from '@ionic/angular/standalone';
 import { SpotifyAuthService } from '../../services/spotify-auth.service';
@@ -9,7 +9,8 @@ import { SpotifyAuthService } from '../../services/spotify-auth.service';
   imports: [IonContent, IonSpinner]
 })
 export class AuthCallbackPage implements OnInit {
-  constructor(private auth: SpotifyAuthService, private router: Router) {}
+  private auth = inject(SpotifyAuthService);
+  private router = inject(Router);
 
   async ngOnInit() {
     await this.auth.handleAuthCallback(window.location.search);
