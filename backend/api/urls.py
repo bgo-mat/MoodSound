@@ -4,4 +4,5 @@ from . import views
 urlpatterns = [
     path('spotify/login/', views.spotify_login, name='spotify-login'),
     path('spotify/callback/', views.spotify_callback, name='spotify-callback'),
+    path('spotify/token/', views.spotify_token, name='spotify-token'),
 ]
