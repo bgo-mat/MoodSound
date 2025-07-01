@@ -10,8 +10,11 @@ UserInterfaceState.xcuserstate
 $RECYCLE.BIN/
 
 *.log
+.env
 log.txt
-
+env
+/env
+/.env
 
 /.sourcemaps
 /.versions
