@@ -26,24 +26,12 @@ export class SpotifyAuthService {
   }
 
   login() {
-    const clientId = environment.spotifyClientId;
-    const redirectUri = environment.spotifyRedirectUri;
-    const scopes = [
-      'user-read-email',
-      'playlist-read-private'
-    ];
-    const url =
-      'https://accounts.spotify.com/authorize' +
-      '?response_type=token' +
-      `&client_id=${encodeURIComponent(clientId)}` +
-      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-      `&scope=${encodeURIComponent(scopes.join(' '))}`;
-    window.location.href = url;
+    window.location.href = `${environment.apiUrl}/spotify/login/`;
   }
 
-  async handleAuthCallback(hash: string) {
-    const params = new URLSearchParams(hash.replace('#', ''));
-    const token = params.get('access_token');
+  async handleAuthCallback(query: string) {
+    const params = new URLSearchParams(query.replace('?', ''));
+    const token = params.get('token');
     if (token) {
       await this.setToken(token);
     }
