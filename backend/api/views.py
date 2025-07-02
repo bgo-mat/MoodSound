@@ -81,3 +81,22 @@ def spotify_token(request):
         return JsonResponse({"error": "token request failed", "details": r.text}, status=400)
 
     return JsonResponse(r.json())
+
+
+@csrf_exempt
+def spotify_favorites(request):
+    """Return user's liked tracks from Spotify."""
+    token = request.headers.get("Authorization")
+    if not token:
+        return JsonResponse({"error": "missing authorization"}, status=400)
+
+    if token.lower().startswith("bearer "):
+        token = token[7:]
+
+    url = "https://api.spotify.com/v1/me/tracks"
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(url, headers=headers)
+    if r.status_code != 200:
+        return JsonResponse({"error": "spotify request failed", "details": r.text}, status=r.status_code)
+
+    return JsonResponse(r.json())

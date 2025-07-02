@@ -25,3 +25,26 @@ class SpotifyTokenTests(TestCase):
         response = self.client.post(reverse('spotify-token'), {})
         self.assertEqual(response.status_code, 400)
 
+
+class SpotifyFavoritesTests(TestCase):
+    def mock_get(self, url, headers=None, **kwargs):
+        self.captured_url = url
+        self.captured_headers = headers
+        response = Response()
+        response.status_code = 200
+        response._content = b'{"items": []}'
+        return response
+
+    @patch('api.views.requests.get')
+    def test_requires_authorization(self, mock_get):
+        response = self.client.get(reverse('spotify-favorites'))
+        self.assertEqual(response.status_code, 400)
+
+    @patch('api.views.requests.get')
+    def test_fetch_favorites(self, mock_get):
+        mock_get.side_effect = self.mock_get
+        response = self.client.get(reverse('spotify-favorites'), HTTP_AUTHORIZATION='Bearer token123')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.captured_url, 'https://api.spotify.com/v1/me/tracks')
+        self.assertEqual(self.captured_headers['Authorization'], 'Bearer token123')
+
