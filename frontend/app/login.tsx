@@ -10,7 +10,7 @@ const discovery = {
 };
 
 const clientId = '211a9538951e4302b2a20c1e1ada5f4d';
-const scopes = ['user-read-email', 'playlist-read-private'];
+const scopes = ["user-read-email", "playlist-read-private", "user-library-read"]
 
 export default function LoginScreen() {
   const router = useRouter();

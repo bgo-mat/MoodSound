@@ -21,7 +21,6 @@ export default function CallbackScreen() {
         await setToken(data);
         router.replace('/connected');
       } catch (e) {
-        console.error(e);
         router.replace('/login');
       }
     }
