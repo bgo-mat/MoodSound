@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_BASE_URL = 'http://10.109.255.231:8000/api';
 
 interface RequestOptions {
   headers?: Record<string, string>;

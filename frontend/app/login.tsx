@@ -1,43 +1,45 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, View } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import { useRouter } from 'expo-router';
+import { makeRedirectUri } from 'expo-auth-session';
 
-
-const clientId = process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID ?? '';
-const scopes = 'user-read-email playlist-read-private';
 const discovery = {
   authorizationEndpoint: 'https://accounts.spotify.com/authorize',
+  tokenEndpoint: 'https://accounts.spotify.com/api/token',
 };
+
+const clientId = '211a9538951e4302b2a20c1e1ada5f4d';
+const scopes = ['user-read-email', 'playlist-read-private'];
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
-  async function handleLogin() {
-    const redirectUri = AuthSession.makeRedirectUri({
-      scheme: 'frontend',
-      path: 'callback',
-    });
-    const params = new URLSearchParams({
-      response_type: 'code',
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      scope: scopes,
-    });
-    const authUrl = `${discovery.authorizationEndpoint}?${params.toString()}`;
+  const [request, response, promptAsync] = AuthSession.useAuthRequest(
+      {
+        clientId,
+        scopes,
+        redirectUri: "exp://10.109.255.231:8081/callback",
+        usePKCE: false,
+        responseType: AuthSession.ResponseType.Code,
+      },
+      discovery
+  );
 
-    setLoading(true);
-    const result = await AuthSession.startAsync({ authUrl, returnUrl: redirectUri });
-    if (result.type === 'success' && result.params?.code) {
-      router.replace({ pathname: '/callback', params: { code: result.params.code } });
+  React.useEffect(() => {
+    if (response?.type === 'success' && response.params?.code) {
+      router.replace({ pathname: '/callback', params: { code: response.params.code } });
     }
-    setLoading(false);
-  }
+
+  }, [response]);
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Button title="Se connecter avec Spotify" onPress={handleLogin} disabled={loading} />
-    </View>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Button
+            title="Se connecter avec Spotify"
+            onPress={() => promptAsync()}
+            disabled={!request}
+        />
+      </View>
   );
 }
