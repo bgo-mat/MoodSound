@@ -23,8 +23,8 @@ export default function HomeScreen() {
   }, [token]);
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ color: 'white' }}>Bienvenue sur MoodSound !</Text>
+    <View className="flex-1 items-center justify-center bg-black">
+      <Text className="text-white">Bienvenue sur MoodSound !</Text>
       <Button
         title="Tester mon mood"
         onPress={() => router.push('/test-mood')}
