@@ -23,7 +23,7 @@ def spotify_token(request):
     if not code:
         return JsonResponse({"error": "missing code"}, status=400)
 
-    redirect_uri = "exp://10.109.255.231:8081/callback"
+    redirect_uri =settings.SPOTIFY_REDIRECT_URI
     token_url = "https://accounts.spotify.com/api/token"
     data = {
         "grant_type": "authorization_code",

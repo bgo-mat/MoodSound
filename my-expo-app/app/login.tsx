@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Button, View } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import { useRouter } from 'expo-router';
-import { makeRedirectUri } from 'expo-auth-session';
-import {REDIRECT_URL} from "@/services/api";
+import {REDIRECT_URL} from "../services/api";
 
 const discovery = {
   authorizationEndpoint: 'https://accounts.spotify.com/authorize',
