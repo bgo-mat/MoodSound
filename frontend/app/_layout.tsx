@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from 'react-native';
 import { AuthProvider } from '../services/auth';
 import AuthGuard from '../services/AuthGuard';
+import Header from '../components/Header';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -23,6 +24,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
         <AuthGuard>
+          <Header />
           <Stack>
             <Stack.Screen name="index" options={{ title: 'Home' }} />
             <Stack.Screen name="login" options={{ title: 'Login' }} />
