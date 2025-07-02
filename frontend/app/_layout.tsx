@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useColorScheme } from 'react-native';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -22,8 +22,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="login" options={{ title: 'Login' }} />
         <Stack.Screen name="callback" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="connected" options={{ title: 'Connected' }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
