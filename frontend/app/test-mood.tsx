@@ -20,8 +20,8 @@ export default function TestMoodScreen() {
   else message = 'Étape 3';
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ color: 'white', marginBottom: 20 }}>{message}</Text>
+    <View className="flex-1 items-center justify-center">
+      <Text className="text-white mb-5">{message}</Text>
       <Button title={step < 3 ? 'Suivant' : 'Terminer'} onPress={next} />
     </View>
   );

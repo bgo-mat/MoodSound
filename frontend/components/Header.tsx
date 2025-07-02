@@ -11,13 +11,8 @@ export default function Header() {
 
   return (
     <View
-      style={{
-        paddingTop: insets.top,
-        paddingBottom: 10,
-        backgroundColor: '#222',
-        alignItems: 'flex-end',
-        paddingHorizontal: 10,
-      }}
+      style={{ paddingTop: insets.top }}
+      className="pb-2 bg-gray-800 items-end px-2"
     >
       <Button title="Logout" onPress={logout} />
     </View>

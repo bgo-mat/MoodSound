@@ -4,8 +4,8 @@ import { useRouter } from 'expo-router';
 export default function ConnectedScreen() {
   const router = useRouter();
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ color: 'white', marginBottom: 20 }}>Connexion à Spotify réussie !</Text>
+    <View className="flex-1 items-center justify-center">
+      <Text className="text-white mb-5">Connexion à Spotify réussie !</Text>
       <Button title="Accéder à l'application" onPress={() => router.replace('/')} />
     </View>
   );
