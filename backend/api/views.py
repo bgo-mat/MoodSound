@@ -1,8 +1,8 @@
 import requests
 import urllib.parse
 from django.conf import settings
+import json
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
 client_id = settings.SPOTIFY_CLIENT_ID
@@ -59,7 +59,12 @@ def spotify_token(request):
     if request.method != "POST":
         return HttpResponse(status=405)
 
-    code = request.POST.get("code")
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({"error": "invalid json"}, status=400)
+
+    code = data.get("code")
     if not code:
         return JsonResponse({"error": "missing code"}, status=400)
 
@@ -67,7 +72,7 @@ def spotify_token(request):
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": settings.SPOTIFY_REDIRECT_URI,
+        "redirect_uri": "exp://10.109.255.231:8081/callback",
         "client_id": client_id,
         "client_secret": client_secret,
     }
