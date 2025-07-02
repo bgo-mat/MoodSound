@@ -9,7 +9,7 @@ client_id = settings.SPOTIFY_CLIENT_ID
 client_secret = settings.SPOTIFY_CLIENT_SECRET
 def spotify_login(request):
     """Redirect user to Spotify authorization page."""
-    scopes = "user-read-email playlist-read-private"
+    scopes = ["user-read-email playlist-read-private", "user-library-read"]
     params = {
         "response_type": "code",
         "client_id": client_id,
@@ -72,7 +72,6 @@ def spotify_token(request):
     data = {
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": "exp://10.109.255.231:8081/callback",
         "client_id": client_id,
         "client_secret": client_secret,
     }
@@ -97,6 +96,7 @@ def spotify_favorites(request):
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.get(url, headers=headers)
     if r.status_code != 200:
+        print('error', r.text, flush=True)
         return JsonResponse({"error": "spotify request failed", "details": r.text}, status=r.status_code)
 
     return JsonResponse(r.json())
