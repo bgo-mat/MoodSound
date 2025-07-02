@@ -24,7 +24,6 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
         <AuthGuard>
-          <Header />
           <Stack>
             <Stack.Screen name="index" options={{ title: 'Home' }} />
             <Stack.Screen name="login" options={{ title: 'Login' }} />
