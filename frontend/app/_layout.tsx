@@ -5,6 +5,8 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from 'react-native';
+import { AuthProvider } from '../services/auth';
+import AuthGuard from '../services/AuthGuard';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -19,11 +21,16 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="login" options={{ title: 'Login' }} />
-        <Stack.Screen name="callback" options={{ headerShown: false }} />
-        <Stack.Screen name="connected" options={{ title: 'Connected' }} />
-      </Stack>
+      <AuthProvider>
+        <AuthGuard>
+          <Stack>
+            <Stack.Screen name="index" options={{ title: 'Home' }} />
+            <Stack.Screen name="login" options={{ title: 'Login' }} />
+            <Stack.Screen name="callback" options={{ headerShown: false }} />
+            <Stack.Screen name="connected" options={{ title: 'Connected' }} />
+          </Stack>
+        </AuthGuard>
+      </AuthProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
   );
