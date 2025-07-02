@@ -16,7 +16,7 @@ export default function CallbackScreen() {
       }
       try {
         await api.post('/spotify/token/', { code });
-        router.replace('/(tabs)');
+        router.replace('/connected');
       } catch (e) {
         console.error(e);
         router.replace('/login');
