@@ -1,6 +1,9 @@
-import { View, Text, Button } from 'react-native';
+import { View, Button } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
+import CameraStep from '../components/CameraStep';
+import MicrophoneStep from '../components/MicrophoneStep';
+import ActivityStep from '../components/ActivityStep';
 
 export default function TestMoodScreen() {
   const [step, setStep] = useState(1);
@@ -14,14 +17,14 @@ export default function TestMoodScreen() {
     }
   };
 
-  let message;
-  if (step === 1) message = 'Étape 1';
-  else if (step === 2) message = 'Étape 2';
-  else message = 'Étape 3';
+  let content;
+  if (step === 1) content = <CameraStep />;
+  else if (step === 2) content = <MicrophoneStep />;
+  else content = <ActivityStep />;
 
   return (
     <View className="flex-1 items-center justify-center">
-      <Text className="text-white mb-5">{message}</Text>
+      {content}
       <Button title={step < 3 ? 'Suivant' : 'Terminer'} onPress={next} />
     </View>
   );
