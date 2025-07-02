@@ -1,10 +1,12 @@
-import { View, Text } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import { useEffect } from 'react';
+import { useRouter } from 'expo-router';
 import api from '../services/api';
 import { useAuth } from '../services/auth';
 
 export default function HomeScreen() {
   const { token } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchFavorites() {
@@ -23,6 +25,10 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text style={{ color: 'white' }}>Bienvenue sur MoodSound !</Text>
+      <Button
+        title="Tester mon mood"
+        onPress={() => router.push('/test-mood')}
+      />
     </View>
   );
 }

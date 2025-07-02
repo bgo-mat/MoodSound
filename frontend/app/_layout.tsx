@@ -30,6 +30,7 @@ export default function RootLayout() {
             <Stack.Screen name="login" options={{ title: 'Login' }} />
             <Stack.Screen name="callback" options={{ headerShown: false }} />
             <Stack.Screen name="connected" options={{ title: 'Connected' }} />
+            <Stack.Screen name="test-mood" options={{ title: 'Test Mood' }} />
           </Stack>
         </AuthGuard>
       </AuthProvider>
