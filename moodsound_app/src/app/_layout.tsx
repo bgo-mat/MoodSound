@@ -6,6 +6,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
 import { useColorScheme } from '@/src/components/useColorScheme';
+import { AuthProvider } from '@/src/services/auth';
+import AuthGuard from '@/src/services/AuthGuard';
+import Header from '@/src/components/Header';
 
 // Import your global CSS file
 import "../../global.css"
@@ -52,10 +55,19 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
+      <AuthProvider>
+        <AuthGuard>
+          <Header />
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="login" options={{ title: 'Login' }} />
+            <Stack.Screen name="callback" options={{ headerShown: false }} />
+            <Stack.Screen name="connected" options={{ title: 'Connected' }} />
+            <Stack.Screen name="test-mood" options={{ title: 'Test Mood' }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          </Stack>
+        </AuthGuard>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
