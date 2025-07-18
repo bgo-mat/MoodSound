@@ -18,7 +18,7 @@ export default function CallbackScreen() {
       }
       try {
         const data = await api.post<TokenData>('/spotify/token/', { code });
-        await setToken(data);
+        setToken(data);
         router.replace('/connected');
       } catch (e) {
         router.replace('/login');

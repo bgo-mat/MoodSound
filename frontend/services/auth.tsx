@@ -1,50 +1,30 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import * as SecureStore from 'expo-secure-store';
+import React, { createContext, useContext, useState } from 'react';
 
 export interface TokenData {
   access_token: string;
   expires_in: number;
 }
 
-const TOKEN_KEY = 'spotify_token';
-const EXPIRES_KEY = 'spotify_token_expires';
 
 interface AuthContextValue {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
-  setToken: (data: TokenData) => Promise<void>;
-  logout: () => Promise<void>;
+  setToken: (data: TokenData) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setTokenState] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const loading = false;
 
-  useEffect(() => {
-    async function load() {
-      const stored = await SecureStore.getItemAsync(TOKEN_KEY);
-      const expires = await SecureStore.getItemAsync(EXPIRES_KEY);
-      if (stored && expires && parseInt(expires, 10) > Date.now() / 1000) {
-        setTokenState(stored);
-      }
-      setLoading(false);
-    }
-    load();
-  }, []);
-
-  const setToken = async (data: TokenData) => {
-    const expiresAt = Math.floor(Date.now() / 1000 + data.expires_in - 60);
-    await SecureStore.setItemAsync(TOKEN_KEY, data.access_token);
-    await SecureStore.setItemAsync(EXPIRES_KEY, expiresAt.toString());
+  const setToken = (data: TokenData) => {
     setTokenState(data.access_token);
   };
 
-  const logout = async () => {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
-    await SecureStore.deleteItemAsync(EXPIRES_KEY);
+  const logout = () => {
     setTokenState(null);
   };
 

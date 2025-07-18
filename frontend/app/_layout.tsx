@@ -3,10 +3,10 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import './global.css'
 
 import { useColorScheme } from 'react-native';
 import { AuthProvider } from '../services/auth';
-import AuthGuard from '../services/AuthGuard';
 import Header from '../components/Header';
 
 export default function RootLayout() {
@@ -23,15 +23,14 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <AuthGuard>
-          <Stack>
+        <Header />
+        <Stack>
             <Stack.Screen name="index" options={{ title: 'Home' }} />
             <Stack.Screen name="login" options={{ title: 'Login' }} />
             <Stack.Screen name="callback" options={{ headerShown: false }} />
             <Stack.Screen name="connected" options={{ title: 'Connected' }} />
             <Stack.Screen name="test-mood" options={{ title: 'Test Mood' }} />
           </Stack>
-        </AuthGuard>
       </AuthProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
