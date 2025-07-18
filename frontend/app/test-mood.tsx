@@ -23,7 +23,7 @@ export default function TestMoodScreen() {
   else content = <ActivityStep />;
 
   return (
-    <View className="flex-1 items-center justify-center">
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       {content}
       <Button title={step < 3 ? 'Suivant' : 'Terminer'} onPress={next} />
     </View>
