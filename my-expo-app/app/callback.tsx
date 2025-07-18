@@ -18,7 +18,7 @@ export default function CallbackScreen() {
       }
       try {
         const data = await api.post<TokenData>('/spotify/token/', { code });
-        await setToken(data);
+        setToken(data);
         router.replace('/connected');
       } catch (e) {
         router.replace('/login');
@@ -28,8 +28,8 @@ export default function CallbackScreen() {
   }, [code, router, setToken]);
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <ActivityIndicator />
-    </View>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator />
+      </View>
   );
 }

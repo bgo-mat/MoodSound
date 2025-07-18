@@ -16,7 +16,6 @@
     "expo": "^53.0.16",
     "expo-auth-session": "^6.2.0",
     "expo-router": "^5.1.2",
-    "expo-secure-store": "^14.2.3",
     "expo-status-bar": "~2.2.3",
     "nativewind": "latest",
     "react": "19.0.0",

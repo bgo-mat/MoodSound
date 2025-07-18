@@ -4,9 +4,14 @@ import { useRouter } from 'expo-router';
 import api from '../services/api';
 import { useAuth } from '../services/auth';
 
+
 export default function HomeScreen() {
   const { token } = useAuth();
   const router = useRouter();
+
+  const styles = {
+    container: 'flex flex-1 m-6',
+  };
 
   useEffect(() => {
     async function fetchFavorites() {
@@ -24,7 +29,7 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text className="mb-4 text-2xl" style={{color: "white"}}>Bienvenue sur MoodSound !</Text>
+      <Text className="" style={{color: "white"}}>Bienvenue sur MoodSound !</Text>
       <Button
         title="Tester mon mood"
         onPress={() => router.push('/test-mood')}
