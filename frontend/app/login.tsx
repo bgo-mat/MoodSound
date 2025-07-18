@@ -35,7 +35,7 @@ export default function LoginScreen() {
   }, [response]);
 
   return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View className="flex-1 items-center justify-center">
         <Button
             title="Se connecter avec Spotify"
             onPress={() => promptAsync()}
