@@ -116,18 +116,13 @@ export default function EnergieStep({ onNext }: { onNext: () => void }) {
                     ))}
                 </AnimatePresence>
             </View>
-            <Text style={styles.status}>
-                {energy && energy > 0
-                    ? energyLevels.find(l => l.value === energy)?.label
-                    : 'Sélectionne ton énergie'}
-            </Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { alignItems: 'center', marginTop: 30 },
-    title: { color: '#fff', fontSize: 20, fontWeight: '600', marginBottom: 20 },
+    title: { color: '#fff', fontSize: 20, fontWeight: '600', marginBottom: 80 },
     row: { flexDirection: 'row', gap: 20, marginBottom: 10, minHeight: 80, alignItems: 'center', justifyContent: 'center' },
     btn: {
         alignItems: 'center',

@@ -112,21 +112,17 @@ export default function HappyStep({ onNext }: { onNext: () => void }) {
                     ))}
                 </AnimatePresence>
             </View>
-            <Text style={styles.label}>
-                {happiness && happiness > 0
-                    ? smileys[happiness - 1].label
-                    : 'Sélectionne un mood'}
-            </Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { alignItems: 'center', marginTop: 30 },
-    title: { color: '#fff', fontSize: 20, fontWeight: '600', marginBottom: 20 },
+    title: { color: '#fff', fontSize: 20, fontWeight: '600',marginBottom: 40},
     smileyRow: {
         flexDirection: 'row',
         gap: 16,
+        marginTop: 40,
         marginBottom: 10,
         minHeight: 80,
         alignItems: 'center',
