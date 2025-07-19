@@ -10,7 +10,7 @@ const circumference = 2 * Math.PI * radius;
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export default function EnvironnementStep({ onNext }: { onNext: () => void }) {
-    const { setActivityData, activityData, setWeather } = useMood();
+    const { setEnvironnementData } = useMood();
     const [waitingApi, setWaitingApi] = useState(true);
     const [done, setDone] = useState(false);
     const progressAnim = useRef(new Animated.Value(0)).current;
@@ -75,14 +75,11 @@ export default function EnvironnementStep({ onNext }: { onNext: () => void }) {
                     }
                 } catch {}
 
-                setActivityData({
-                    activityLevel: activityData?.activityLevel ?? null,
-                    speedLevel: activityData?.speedLevel ?? null,
-                    country,
-                    region,
+                setEnvironnementData({
+                    country:country,
+                    region:region,
+                    weather:weather
                 });
-
-                setWeather(weather);
 
                 setWaitingApi(false);
 

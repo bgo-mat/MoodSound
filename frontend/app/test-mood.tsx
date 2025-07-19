@@ -22,6 +22,7 @@ export default function TestMoodScreen() {
     activityData,
     happiness,
     energy,
+    environnementData
   } = useMood();
 
   const next = () => {
@@ -37,9 +38,10 @@ export default function TestMoodScreen() {
     const payload = {
       audioUri,
       videoUri,
-      activity: activityData,
+      activityData,
       happiness,
       energy,
+      environnementData
     };
     console.log(payload)
 

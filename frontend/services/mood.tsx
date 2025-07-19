@@ -3,8 +3,12 @@ import React, { createContext, useContext, useState } from 'react';
 export interface ActivityData {
     activityLevel: string | null;
     speedLevel: string | null;
+}
+
+export interface EnvironnementData{
     country: string | null;
     region: string | null;
+    weather:any
 }
 
 export interface MoodContextValue {
@@ -18,8 +22,8 @@ export interface MoodContextValue {
     setHappiness: (h: string | null) => void;
     energy: string | null;
     setEnergy: (e: string | null) => void;
-    weather: any;
-    setWeather: (w: any) => void;
+    environnementData: EnvironnementData | null,
+    setEnvironnementData: (data: EnvironnementData) => void
 }
 
 const MoodContext = createContext<MoodContextValue | undefined>(undefined);
@@ -30,7 +34,7 @@ export function MoodProvider({ children }: { children: React.ReactNode }) {
     const [activityData, setActivityDataState] = useState<ActivityData | null>(null);
     const [happiness, setHappiness] = useState<string | null>(null);
     const [energy, setEnergy] = useState<string | null>(null);
-    const [weather, setWeather] = useState<any>(null);
+    const [environnementData, setEnvironnementData] = useState<EnvironnementData | null>(null);
 
     const setActivityData = (data: ActivityData) => {
         setActivityDataState(data);
@@ -49,8 +53,8 @@ export function MoodProvider({ children }: { children: React.ReactNode }) {
                 setHappiness,
                 energy,
                 setEnergy,
-                weather,
-                setWeather,
+                environnementData,
+                setEnvironnementData
             }}
         >
             {children}
