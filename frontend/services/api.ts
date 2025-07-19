@@ -5,6 +5,28 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
+async function uploadFile(endpoint: string, uri: string, mime: string): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', {
+    uri,
+    name: uri.split('/').pop() || 'upload',
+    type: mime,
+  } as any);
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || response.statusText);
+  }
+
+  const data = await response.json();
+  return data.url as string;
+}
+
 async function request<T>(method: string, path: string, body?: unknown, options: RequestOptions = {}): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
@@ -40,6 +62,13 @@ export const api = {
   delete<T>(path: string, body?: unknown, options?: RequestOptions) {
     return request<T>('DELETE', path, body, options);
   },
+  uploadAudio(uri: string) {
+    return uploadFile('/upload-audio/', uri, 'audio/m4a');
+  },
+  uploadVideo(uri: string) {
+    return uploadFile('/upload-video/', uri, 'video/mp4');
+  },
 };
 
 export default api;
+
