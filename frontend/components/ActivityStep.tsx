@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, ActivityIndicator,  Text } from 'react-native';
 import { useMood } from '../services/mood';
 import { Accelerometer } from 'expo-sensors';
 import * as Location from 'expo-location';
-import {LocationSubscription} from "expo-location";
+import { LocationSubscription } from "expo-location";
 import { EventSubscription } from 'expo-modules-core';
+import ActivityStepProgress from './ActivityStepProgress';
 
 export const ActivityLevel = {
   LOW: 'low',
@@ -19,67 +20,66 @@ export const SpeedLevel = {
   DRIVE: 'drive'
 };
 
-function getActivityLevel(avgNorm:any) {
-  if (avgNorm < 1.05) return ActivityLevel.LOW;        // repos
-  if (avgNorm < 1.2) return ActivityLevel.MEDIUM;      // marche/activité faible
-  return ActivityLevel.HIGH;                            // activité physique forte
+function getActivityLevel(avgNorm: any) {
+  if (avgNorm < 1.05) return ActivityLevel.LOW;
+  if (avgNorm < 1.2) return ActivityLevel.MEDIUM;
+  return ActivityLevel.HIGH;
 }
 function getSpeedLevel(avgSpeed: number) {
-  if (avgSpeed < 0.3) return SpeedLevel.STILL;         // à l'arrêt
-  if (avgSpeed < 2) return SpeedLevel.WALK;            // marche
-  if (avgSpeed < 6) return SpeedLevel.RUN;             // course (≈20 km/h max)
-  return SpeedLevel.DRIVE;                             // conduite (voiture, vélo électrique rapide, etc.)
+  if (avgSpeed < 0.3) return SpeedLevel.STILL;
+  if (avgSpeed < 2) return SpeedLevel.WALK;
+  if (avgSpeed < 6) return SpeedLevel.RUN;
+  return SpeedLevel.DRIVE;
 }
 
-
-export default function ActivityStep() {
-  const [locationPermission, setLocationPermission] = useState(false);
+export default function ActivityStep({ onNext }: { onNext: () => void }) {
   const [avgNorm, setAvgNorm] = useState(0);
   const [avgSpeed, setAvgSpeed] = useState(0);
   const [activityLevel, setActivityLevel] = useState<string | null>(null);
   const [speedLevel, setSpeedLevel] = useState<string | null>(null);
-  const [isRecording, setIsRecording] = useState(false);
   const [country, setCountry] = useState<string | null>(null);
   const [region, setRegion] = useState<string | null>(null);
 
-  const { setActivityData } = useMood();
+  // PROGRESS BAR
+  const [accelDone, setAccelDone] = useState(false);
+  const [gpsDone, setGpsDone] = useState(false);
+  const [geoDone, setGeoDone] = useState(false);
+  const [weatherDone, setWeatherDone] = useState(false);
 
-  const normArray:React.RefObject<number[]> = useRef([0]);
-  const speedArray:React.RefObject<number[]> = useRef([]);
+  const { setActivityData, setWeather } = useMood();
+
+  const normArray = useRef<number[]>([]);
+  const speedArray = useRef<number[]>([]);
   const accelSub = useRef<EventSubscription | null>(null);
-  const locSub: React.RefObject<LocationSubscription | null> = useRef(null);
+  const locSub = useRef<LocationSubscription | null>(null);
 
-  // Permissions GPS
+  // Permissions + auto start on mount
   useEffect(() => {
-    (async () => {
+    let timer: number | null;
+
+    const startAll = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      setLocationPermission(status === 'granted');
       if (status !== 'granted') {
         console.log('Permission GPS non accordée');
+        return;
       }
-    })();
-  }, []);
 
-  const startRecording = async () => {
-    // Nettoyage
-    normArray.current = [];
-    speedArray.current = [];
-    setIsRecording(true);
+      // Clean data
+      normArray.current = [];
+      speedArray.current = [];
 
-    // Accéléromètre
-    // @ts-ignore
-    accelSub.current = Accelerometer.addListener(data => {
-      const norm = Math.sqrt(data.x ** 2 + data.y ** 2 + data.z ** 2);
-      normArray.current.push(norm);
-    });
-    Accelerometer.setUpdateInterval(200);
+      // Accéléromètre
+      accelSub.current = Accelerometer.addListener(data => {
+        const norm = Math.sqrt(data.x ** 2 + data.y ** 2 + data.z ** 2);
+        normArray.current.push(norm);
+      });
+      Accelerometer.setUpdateInterval(200);
 
-    // GPS
-    if (locationPermission) {
+      // GPS
       locSub.current = await Location.watchPositionAsync(
           {
             accuracy: Location.Accuracy.Highest,
-            timeInterval: 1000, // toutes les secondes
+            timeInterval: 1000,
             distanceInterval: 1,
           },
           (location) => {
@@ -89,51 +89,91 @@ export default function ActivityStep() {
             speedArray.current.push(speed);
           }
       );
-    }
 
-    // Stop après 10 secondes
-    setTimeout(() => {
-      stopRecording();
-    }, 10000);
-  };
+      // Stop après 10 secondes
+      timer = setTimeout(() => {
+        stopAll();
+      }, 10000);
+    };
 
-  const stopRecording = async () => {
-    setIsRecording(false);
+    startAll();
+
+    // Clean-up si le composant est démonté
+    return () => {
+      if (timer) clearTimeout(timer);
+      if (accelSub.current) accelSub.current.remove();
+      if (locSub.current) locSub.current.remove();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const stopAll = async () => {
+    // 1. Stoppe les capteurs
     if (accelSub.current) accelSub.current.remove();
     if (locSub.current) await locSub.current.remove();
 
     // Calcul des moyennes
-    const avgNorm =
+    const avgNormVal =
         normArray.current.length > 0
             ? normArray.current.reduce((a, b) => a + b, 0) / normArray.current.length
             : 0;
-    const avgSpeed =
+    const avgSpeedVal =
         speedArray.current.length > 0
             ? speedArray.current.reduce((a, b) => a + b, 0) / speedArray.current.length
             : 0;
 
-    setAvgNorm(avgNorm);
-    setAvgSpeed(avgSpeed);
+    setAvgNorm(avgNormVal);
+    setAvgSpeed(avgSpeedVal);
 
-    // Déduction des niveaux
-    const actLevel = getActivityLevel(avgNorm);
-    const spdLevel = getSpeedLevel(avgSpeed);
+    setAccelDone(true);
+
+    // On déduis les niveaux
+    const actLevel = getActivityLevel(avgNormVal);
+    const spdLevel = getSpeedLevel(avgSpeedVal);
 
     setActivityLevel(actLevel);
     setSpeedLevel(spdLevel);
 
-    const geoResult = await fetchCountryAndRegion();
+    setGpsDone(true);
 
-    if (geoResult) {
-      // Store activity and location data in context for later use
-      setActivityData({
-        activityLevel: actLevel,
-        speedLevel: spdLevel,
-        country: geoResult.country,
-        region: geoResult.region,
-      });
+    // On récupère la géoloc
+    let geoResult = await fetchCountryAndRegion()
+
+    setGeoDone(true);
+
+    // Météo
+    let weatherData = null;
+    if (geoResult.coords) {
+      weatherData = await fetchWeather(geoResult.coords);
+      setWeather(weatherData);
+    }
+
+    setWeatherDone(true);
+
+    // On stocke l'activité dans le context
+    setActivityData({
+      activityLevel: actLevel,
+      speedLevel: spdLevel,
+      country: geoResult.country,
+      region: geoResult.region,
+    });
+
+    // On passe à l'étape suivante uniquement si tout est récupéré
+    if (
+        actLevel &&
+        spdLevel &&
+        geoResult.country &&
+        geoResult.region &&
+        weatherData
+    ) {
+      if (onNext){
+        onNext();
+      }
+    } else {
+      console.warn("Certaines données n'ont pas pu être récupérées.");
     }
   };
+
 
   async function fetchCountryAndRegion() {
     try {
@@ -153,27 +193,91 @@ export default function ActivityStep() {
         return {
           country: geocode[0].country ?? null,
           region: regionValue,
+          coords: position.coords
         };
       }
     } catch (e) {
       setCountry(null);
       setRegion(null);
-      return { country: null, region: null };
+      return { country: null, region: null, coords : null };
     }
-    return { country: null, region: null };
+    return { country: null, region: null, coords : null };
+  }
+
+  async function fetchWeather({ latitude, longitude }: { latitude: number, longitude: number }) {
+    try {
+      const res = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+      );
+      const json = await res.json();
+      return simplifyWeatherData(json);
+    } catch (e) {
+      console.log("Erreur météo :", e);
+      return null;
+    }
+  }
+
+  function simplifyWeatherData(raw: any) {
+    const data = raw?.current_weather || raw;
+    if (!data) return null;
+    return {
+      temperature: data.temperature,                  // en °C
+      weather: interpretWeatherCode(data.weathercode), // texte humain
+      isDay: data.is_day === 1 ? "day" : "night",
+      windSpeed: data.windspeed,                      // km/h
+      windDirection: data.winddirection,              // degrés
+      hour: data.time?.slice(11, 16) || null,         // HH:MM
+    };
+  }
+
+  // Traduction du weathercode en une description lisible pour l'ia
+  function interpretWeatherCode(code: number): string {
+    const weatherCodes: Record<number, string> = {
+      0: "Clear sky",
+      1: "Mainly clear",
+      2: "Partly cloudy",
+      3: "Overcast",
+      45: "Fog",
+      48: "Depositing rime fog",
+      51: "Light drizzle",
+      53: "Moderate drizzle",
+      55: "Dense drizzle",
+      56: "Light freezing drizzle",
+      57: "Dense freezing drizzle",
+      61: "Slight rain",
+      63: "Moderate rain",
+      65: "Heavy rain",
+      66: "Light freezing rain",
+      67: "Heavy freezing rain",
+      71: "Slight snow fall",
+      73: "Moderate snow fall",
+      75: "Heavy snow fall",
+      77: "Snow grains",
+      80: "Slight rain showers",
+      81: "Moderate rain showers",
+      82: "Violent rain showers",
+      85: "Slight snow showers",
+      86: "Heavy snow showers",
+      95: "Thunderstorm",
+      96: "Thunderstorm with slight hail",
+      99: "Thunderstorm with heavy hail"
+    };
+    return weatherCodes[code] || "Unknown";
   }
 
   return (
-      <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 40 }}>
-        <Button
-            title={isRecording ? "Enregistrement en cours..." : "Démarrer l'analyse de mood"}
-            onPress={startRecording}
-            disabled={isRecording}
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <ActivityStepProgress
+            timer={10}
+            states={{ accelDone, gpsDone, geoDone, weatherDone }}
         />
-        <Text style={{ color: 'white', marginTop: 20 }}>Moyenne norm: {avgNorm.toFixed(2)}</Text>
-        <Text style={{ color: 'white' }}>Moyenne speed: {avgSpeed.toFixed(2)}</Text>
-        <Text style={{ color: 'white' }}>Activité: {activityLevel}</Text>
-        <Text style={{ color: 'white' }}>Déplacement: {speedLevel}</Text>
+        <ActivityIndicator
+            size="large"
+            color="#50f3bb"
+            style={{ marginVertical: 32 }}
+        />
+        <Text style={{ color: 'white', marginTop: 16 }}>Analyse des données en cours...</Text>
       </View>
   );
+
 }

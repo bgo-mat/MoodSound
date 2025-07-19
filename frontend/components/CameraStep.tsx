@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Button, Text, TouchableOpacity } from 'react-native';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
+import { useMood } from '../services/mood'
 
-export default function CameraStep() {
+export default function CameraStep({ onNext }: { onNext: () => void }) {
   const cameraRef = useRef<CameraView>(null);
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [micPermission, requestMicPermission] = useMicrophonePermissions();
   const [recording, setRecording] = useState(false);
-  const [videoUri, setVideoUri] = useState<string | null>(null);
+  const [videoUri, setLocalVideoUri] = useState<string | null>(null);
+  const { setVideoUri } = useMood();
 
   useEffect(() => {
     if (!cameraPermission?.granted) requestCameraPermission();
@@ -16,11 +18,7 @@ export default function CameraStep() {
 
   const saveVideo = async () => {
     if (videoUri) {
-
-
-      //TODO Stocker la video dans un service/contexte pour le réutiliser plus tard
-
-
+      setVideoUri(videoUri);
     }
   };
 
@@ -32,7 +30,7 @@ export default function CameraStep() {
           maxDuration: 60, // max 60 sec
         });
         // @ts-ignore
-        setVideoUri(video.uri);
+        setLocalVideoUri(video.uri);
       } catch (error) {
         console.error("Recording error:", error);
         setRecording(false);
@@ -44,6 +42,8 @@ export default function CameraStep() {
     if (cameraRef.current && recording) {
       cameraRef.current.stopRecording();
       setRecording(false);
+      await saveVideo();
+      if (onNext) onNext();
     }
   };
 

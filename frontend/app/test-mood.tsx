@@ -4,28 +4,67 @@ import { useRouter } from 'expo-router';
 import CameraStep from '../components/CameraStep';
 import MicrophoneStep from '../components/MicrophoneStep';
 import ActivityStep from '../components/ActivityStep';
+import EnergieStep from "../components/EnergieStep";
+import HappyStep from "../components/HappyStep";
+import { useMood } from '../services/mood';
+import api from '../services/api';
 
 export default function TestMoodScreen() {
   const [step, setStep] = useState(1);
   const router = useRouter();
 
+  const {
+    audioUri,
+    videoUri,
+    activityData,
+    happiness,
+    energy,
+  } = useMood();
+
   const next = () => {
-    if (step < 3) {
+    if (step < 5) {
       setStep(step + 1);
     } else {
-      router.replace('/');
+      sendToBackend();
     }
   };
 
+  async function sendToBackend() {
+    try {
+      const payload = {
+        audioUri,
+        videoUri,
+        activity: activityData,
+        happiness,
+        energy,
+      };
+      await api.post('/test-mood', payload);
+      // TODO Redirection après envoie
+      router.replace('/');
+    } catch (error) {
+      console.error('Erreur d\'envoi au backend:', error);
+      // TODO gestion error
+    }
+  }
+
+  const canSkip = step < 4;
+
   let content;
-  if (step === 1) content = <CameraStep />;
-  else if (step === 2) content = <MicrophoneStep />;
-  else content = <ActivityStep />;
+  if (step === 1) content = <CameraStep onNext={next} />;
+  else if (step === 2) content = <MicrophoneStep onNext={next}/>;
+  else if (step === 3) content = <ActivityStep onNext={next}/>;
+  else if (step === 4) content = <EnergieStep onNext={next}/>;
+  else if (step === 5) content = <HappyStep onNext={next}/>;
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      {content}
-      <Button title={step < 3 ? 'Suivant' : 'Terminer'} onPress={next} />
-    </View>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        {content}
+        {canSkip && (
+            <Button title="Passer" onPress={next} />
+        )}
+        {step === 5 && (
+            <Button title="Terminer" onPress={next} />
+        )}
+      </View>
   );
 }
