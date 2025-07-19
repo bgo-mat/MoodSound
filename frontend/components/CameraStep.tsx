@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Animated, Easing } from 'react-native';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import { useMood } from '../services/mood';
 
-const COUNTDOWN = 5; // enregistrement vidéo
+const COUNTDOWN = 5;
 
 export default function CameraStep({ onNext }: { onNext: () => void }) {
   const cameraRef = useRef<CameraView>(null);
@@ -11,11 +11,12 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
   const [micPermission, requestMicPermission] = useMicrophonePermissions();
   const [step, setStep] = useState<'idle' | 'recording' | 'done'>('idle');
   const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN);
+  const [facing, setFacing] = useState<'back' | 'front'>('back');
   const { setVideoUri } = useMood();
 
-  const countdownAnim = useRef(new Animated.Value(1)).current;
+  // Pour l’animation du border progress
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
-  // Gestion permission refusée
   useEffect(() => {
     if (
         cameraPermission?.status === 'denied' ||
@@ -28,40 +29,49 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
   const handleStart = async () => {
     setStep('recording');
     setSecondsLeft(COUNTDOWN);
-    // Démarre l'enregistrement vidéo puis compte à rebours
+
+    // Animation border progress
+    progressAnim.setValue(0);
+    Animated.timing(progressAnim, {
+      toValue: 1,
+      duration: COUNTDOWN * 1000,
+      useNativeDriver: false,
+      easing: Easing.linear,
+    }).start();
+
     if (cameraRef.current) {
       try {
-        // Lance le chrono pour afficher l'UI du countdown
         let sec = COUNTDOWN;
         const interval = setInterval(() => {
           sec--;
           setSecondsLeft(sec);
-          Animated.sequence([
-            Animated.timing(countdownAnim, { toValue: 1.4, duration: 240, useNativeDriver: true }),
-            Animated.timing(countdownAnim, { toValue: 1, duration: 260, useNativeDriver: true }),
-          ]).start();
-          if (sec <= 0) {
-            clearInterval(interval);
-          }
+          if (sec <= 0) clearInterval(interval);
         }, 1000);
 
-        // recordAsync s'arrêtera automatiquement après 5s (maxDuration)
         const video = await cameraRef.current.recordAsync({ maxDuration: COUNTDOWN });
-
-        // Après 5s
-        if (video && video.uri) {
-          setVideoUri(video.uri);
-        }
+        if (video && video.uri) setVideoUri(video.uri);
         setStep('done');
-        setTimeout(() => {
-          if (onNext) onNext();
-        }, 1300);
+        setTimeout(() => { if (onNext) onNext(); }, 1300);
       } catch (e) {
         setStep('idle');
         if (onNext) onNext();
       }
     }
   };
+
+  const handleSwitchCamera = () => {
+    setFacing(f => (f === 'back' ? 'front' : 'back'));
+  };
+
+  // Pour dessiner le border progress circulaire
+  const strokeWidth = 7;
+  const radius = 46;
+  const circumference = 2 * Math.PI * radius;
+
+  const animatedStrokeDashoffset = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [circumference, 0],
+  });
 
   if (!cameraPermission || !micPermission) {
     return <View style={styles.container}><Text>Demande de permissions...</Text></View>;
@@ -82,50 +92,73 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
         <CameraView
             ref={cameraRef}
             style={styles.camera}
-            facing="back"
+            facing={facing}
             mode="video"
         />
 
+        {/* Switch camera */}
+        <TouchableOpacity style={styles.switchBtn} onPress={handleSwitchCamera}>
+          <Text style={styles.switchIcon}>🔄</Text>
+        </TouchableOpacity>
+
         <View style={styles.controls}>
-          {/* Avant enregistrement */}
+          {/* Step idle */}
           {step === 'idle' && (
-              <>
+              <View style={styles.previewContainer}>
                 <Text style={styles.infoText}>
-                  <Text style={{ fontSize: 18 }}>🎬</Text> Prépare-toi à filmer autour de toi !
+                  <Text style={{ fontSize: 18 }}>🎬</Text> Filme autour de toi !
                 </Text>
                 <TouchableOpacity style={styles.buttonRecord} onPress={handleStart}>
-                  <Text style={styles.text}>Enregistrer</Text>
+                  <Text style={styles.text}>Commencer</Text>
                 </TouchableOpacity>
-              </>
-          )}
-
-          {/* Pendant l'enregistrement */}
-          {step === 'recording' && (
-              <View style={{ alignItems: 'center', marginTop: 24 }}>
-                <Text style={{ fontSize: 22, color: '#fff', fontWeight: 'bold' }}>🎥 Enregistrement...</Text>
-                <Animated.Text style={{
-                  fontSize: 46,
-                  color: '#50f3bb',
-                  fontWeight: 'bold',
-                  marginTop: 12,
-                  opacity: 0.92,
-                  transform: [{ scale: countdownAnim }]
-                }}>
-                  {secondsLeft}
-                </Animated.Text>
-                <Text style={{ color: '#fff', marginTop: 6, fontSize: 16 }}>
-                  secondes restantes
-                </Text>
               </View>
           )}
 
-          {/* Validation */}
-          {step === 'done' && (
-              <View style={{ alignItems: 'center', marginTop: 30 }}>
-                <Text style={{ fontSize: 46, color: '#50f3bb', fontWeight: 'bold' }}>✅</Text>
-                <Text style={{ color: '#fff', marginTop: 8, fontSize: 19, fontWeight: '600' }}>
-                  Vidéo enregistrée !
-                </Text>
+          {/* Step recording */}
+          {(step === 'recording' || step === 'done')  && (
+              <View style={styles.previewContainer}>
+                <View style={{alignItems: 'center', justifyContent: 'center', marginBottom: 12}}>
+                  <View style={{position: 'relative', width: 108, height: 108, alignItems: 'center', justifyContent: 'center'}}>
+                    {/* Progress Circle */}
+                    <Animated.View style={{position: 'absolute', top: 0, left: 0}}>
+                      <Svg width={108} height={108}>
+                        <Circle
+                            cx={54}
+                            cy={54}
+                            r={radius}
+                            stroke="#333a"
+                            strokeWidth={strokeWidth}
+                            fill="none"
+                        />
+                        <AnimatedCircle
+                            cx={54}
+                            cy={54}
+                            r={radius}
+                            stroke="#50f3bb"
+                            strokeWidth={strokeWidth}
+                            fill="none"
+                            strokeDasharray={circumference}
+                            strokeDashoffset={animatedStrokeDashoffset}
+                            strokeLinecap="round"
+                        />
+                      </Svg>
+                    </Animated.View>
+                    {/* Camera Icon */}
+                    {step === 'done' &&(
+                        <Text style={{ fontSize: 54, textAlign: 'center', color: '#fff', zIndex: 2 }}>✅</Text>
+                    )}
+                    {step === 'recording' &&(
+                        <Text style={{ fontSize: 54, textAlign: 'center', color: '#fff', zIndex: 2 }}>🎥</Text>
+                    )}
+                  </View>
+                </View>
+
+                {step === 'done' &&(
+                    <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Parfait !</Text>
+                )}
+                {step === 'recording' &&(
+                    <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Enregistrement...</Text>
+                )}
               </View>
           )}
         </View>
@@ -133,6 +166,11 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
   );
 }
 
+// Pour l’animation SVG
+import Svg, { Circle } from 'react-native-svg';
+import { Animated as RNAnimated } from 'react-native';
+
+const AnimatedCircle = RNAnimated.createAnimatedComponent(Circle);
 
 const styles = StyleSheet.create({
   container: {
@@ -141,31 +179,63 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#000',
   },
+  previewContainer: {
+    backgroundColor: '#202530cc',
+    borderRadius: 30,
+    padding: 34,
+    shadowColor: '#000',
+    shadowRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: "80%",
+    minHeight: 180,
+    marginBottom: 28,
+  },
   camera: {
     flex: 4,
+    position: "absolute",
     width: "100%",
+    height: "100%",
+  },
+  switchBtn: {
+    position: 'absolute',
+    top: 36,
+    right: 26,
+    zIndex: 20,
+    backgroundColor: '#202530cc',
+    borderRadius: 32,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#50f3bb',
+    shadowOpacity: 0.22,
+    shadowRadius: 12,
+  },
+  switchIcon: {
+    fontSize: 26,
+    color: '#fff',
   },
   controls: {
     flex: 1.1,
     padding: 20,
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     alignItems: 'center',
   },
   buttonRecord: {
     backgroundColor: '#50f3bb',
-    padding: 16,
+    padding: 12,
     borderRadius: 32,
-    width: 210,
     alignItems: 'center',
-    marginTop: 30,
     shadowColor: '#50f3bb',
     shadowOpacity: 0.17,
     shadowRadius: 8,
     elevation: 2,
+    minWidth: 110,
+    marginTop: 18,
   },
   text: {
     color: '#000',
-    fontSize: 21,
+    fontSize: 15,
     fontWeight: 'bold'
   },
   infoText: {

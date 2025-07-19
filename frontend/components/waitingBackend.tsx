@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     },
     barLoaderFill: {
         height: '100%',
-        backgroundColor: '#68f0c5',
+        backgroundColor: '#50f3bb',
         borderRadius: 9,
         width: '65%',
     },
