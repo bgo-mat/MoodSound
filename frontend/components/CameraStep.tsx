@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Animated, Easing } from 'react-native';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import { useMood } from '../services/mood';
+import api from '../services/api';
 
 const COUNTDOWN = 5;
 
@@ -12,7 +13,8 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
   const [step, setStep] = useState<'idle' | 'recording' | 'done'>('idle');
   const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN);
   const [facing, setFacing] = useState<'back' | 'front'>('back');
-  const { setVideoUri } = useMood();
+  const { setVideoUri, setVideoUrl, setVideoUploading, videoUploading } = useMood();
+  const [uploadError, setUploadError] = useState<boolean>(false);
 
   // Pour l’animation du border progress
   const progressAnim = useRef(new Animated.Value(0)).current;
@@ -49,7 +51,16 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
         }, 1000);
 
         const video = await cameraRef.current.recordAsync({ maxDuration: COUNTDOWN });
-        if (video && video.uri) setVideoUri(video.uri);
+        if (video && video.uri) {
+          setVideoUri(video.uri);
+          setVideoUploading(true);
+          api.uploadVideo(video.uri)
+            .then(url => {
+              setVideoUrl(url);
+            })
+            .catch(() => setUploadError(true))
+            .finally(() => setVideoUploading(false));
+        }
         setStep('done');
         setTimeout(() => { if (onNext) onNext(); }, 1300);
       } catch (e) {
@@ -153,10 +164,18 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
                   </View>
                 </View>
 
-                {step === 'done' &&(
-                    <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Parfait !</Text>
+                {step === 'done' && (
+                    <>
+                        <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Parfait !</Text>
+                        {videoUploading && !uploadError && (
+                            <Text style={{ color: '#fff', marginTop: 8 }}>Upload video...</Text>
+                        )}
+                        {uploadError && (
+                            <Text style={{ color: '#ff8080', marginTop: 8 }}>Erreur lors de l'upload</Text>
+                        )}
+                    </>
                 )}
-                {step === 'recording' &&(
+                {step === 'recording' && (
                     <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Enregistrement...</Text>
                 )}
               </View>

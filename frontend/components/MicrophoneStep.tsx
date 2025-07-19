@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { useMood } from '../services/mood';
+import api from '../services/api';
 import { Audio } from 'expo-av';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -12,7 +13,8 @@ const circumference = 2 * Math.PI * radius;
 export default function MicrophoneStep({ onNext }: { onNext: () => void }) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [uri, setUri] = useState<string | null>(null);
-  const { setAudioUri } = useMood();
+  const { setAudioUri, setAudioUrl, setAudioUploading, audioUploading } = useMood();
+  const [uploadError, setUploadError] = useState<boolean>(false);
 
   const timerRef = useRef<number | null>(null);
   const recordingRef = useRef<Audio.Recording | null>(null);
@@ -92,6 +94,15 @@ export default function MicrophoneStep({ onNext }: { onNext: () => void }) {
       const uri = rec.getURI();
       setUri(uri);
       setAudioUri(uri ?? null);
+      if (uri) {
+        setAudioUploading(true);
+        api.uploadAudio(uri)
+          .then(url => {
+            setAudioUrl(url);
+          })
+          .catch(() => setUploadError(true))
+          .finally(() => setAudioUploading(false));
+      }
       setTimeout(() => { if (onNext) onNext(); }, 1300);
     } catch (err) {
       //
@@ -132,6 +143,12 @@ export default function MicrophoneStep({ onNext }: { onNext: () => void }) {
         <Text style={styles.title}>
           {recording ? "Enregistrement audio en cours..." : "Parfait !"}
         </Text>
+        {audioUploading && !uploadError && (
+          <Text style={styles.upload}>Upload audio...</Text>
+        )}
+        {uploadError && (
+          <Text style={styles.error}>Erreur lors de l'upload</Text>
+        )}
       </View>
   );
 }
@@ -178,6 +195,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     textAlign: 'center'
+  },
+  error: {
+    color: '#ff8080',
+    marginTop: 8,
+  },
+  upload: {
+    color: '#fff',
+    marginTop: 8,
   },
   uri: {
     color: '#fff',

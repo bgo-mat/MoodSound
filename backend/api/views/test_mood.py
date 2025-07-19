@@ -4,8 +4,11 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from api.serializer import TestMoodSerializer
-from api.AI.audio_analyzer import audio_analyzer
-from api.AI.video_analyzer import video_analyzer
+
+from api.AI.video_analyzer import video_analyzer as analyze_video
+from api.AI.audio_analyzer import audio_analyzer as analyze_audio
+from api.AI.final_ai_call import final_ai_call as final_gpt_report
+
 
 class TestMoodViewSet(viewsets.ModelViewSet):
     serializer_class = TestMoodSerializer
