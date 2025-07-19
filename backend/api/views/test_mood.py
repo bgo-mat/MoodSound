@@ -4,9 +4,9 @@ from rest_framework.response import Response
 from django.conf import settings
 
 from api.serializer import TestMoodSerializer
-from api.ai.analyze_video import analyze_video
-from api.ai.analyze_audio import analyze_audio
-from api.ai.final_report import final_gpt_report
+from api.AI.video_analyzer import video_analyzer as analyze_video
+from api.AI.audio_analyzer import audio_analyzer as analyze_audio
+from api.AI.final_ai_call import final_ai_call as final_gpt_report
 
 class TestMoodViewSet(viewsets.ModelViewSet):
     serializer_class = TestMoodSerializer
