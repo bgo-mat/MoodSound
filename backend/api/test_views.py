@@ -48,3 +48,31 @@ class SpotifyFavoritesTests(TestCase):
         self.assertEqual(self.captured_url, 'https://api.spotify.com/v1/me/tracks')
         self.assertEqual(self.captured_headers['Authorization'], 'Bearer token123')
 
+
+class UploadAudioTests(TestCase):
+    def test_missing_file(self):
+        response = self.client.post(reverse('upload-audio'))
+        self.assertEqual(response.status_code, 400)
+
+    def test_invalid_type(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        f = SimpleUploadedFile('test.txt', b'abc', content_type='text/plain')
+        response = self.client.post(reverse('upload-audio'), {'file': f})
+        self.assertEqual(response.status_code, 400)
+
+    @patch('api.views.upload_audio.uuid.uuid4')
+    def test_upload_success(self, mock_uuid):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.conf import settings
+        import os
+
+        mock_uuid.return_value.hex = 'abcdef'
+        audio_bytes = b'FAKEAUDIO'
+        f = SimpleUploadedFile('sound.m4a', audio_bytes, content_type='audio/m4a')
+        response = self.client.post(reverse('upload-audio'), {'file': f})
+        self.assertEqual(response.status_code, 200)
+        path = response.json().get('audio_path')
+        self.assertTrue(path.startswith('app/assets/audio/'))
+        full_path = os.path.join(settings.BASE_DIR, path)
+        self.assertTrue(os.path.isfile(full_path))
+
