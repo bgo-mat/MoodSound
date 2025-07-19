@@ -12,9 +12,13 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
   const { setVideoUri } = useMood();
 
   useEffect(() => {
-    if (!cameraPermission?.granted) requestCameraPermission();
-    if (!micPermission?.granted) requestMicPermission();
-  }, []);
+    if (
+        cameraPermission?.status === 'denied' ||
+        micPermission?.status === 'denied'
+    ) {
+      if (onNext) onNext();
+    }
+  }, [cameraPermission, micPermission]);
 
   const saveVideo = async () => {
     if (videoUri) {

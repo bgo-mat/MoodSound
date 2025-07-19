@@ -8,6 +8,8 @@ import EnergieStep from "../components/EnergieStep";
 import HappyStep from "../components/HappyStep";
 import { useMood } from '../services/mood';
 import api from '../services/api';
+import WaitingBackend from "@/components/waitingBackend";
+import {AnimatePresence, MotiView} from "moti";
 
 export default function TestMoodScreen() {
   const [step, setStep] = useState(1);
@@ -22,7 +24,7 @@ export default function TestMoodScreen() {
   } = useMood();
 
   const next = () => {
-    if (step < 5) {
+    if (step < 6) {
       setStep(step + 1);
     } else {
       sendToBackend();
@@ -47,24 +49,28 @@ export default function TestMoodScreen() {
     }
   }
 
-  const canSkip = step < 4;
-
   let content;
   if (step === 1) content = <CameraStep onNext={next} />;
   else if (step === 2) content = <MicrophoneStep onNext={next}/>;
   else if (step === 3) content = <ActivityStep onNext={next}/>;
   else if (step === 4) content = <EnergieStep onNext={next}/>;
   else if (step === 5) content = <HappyStep onNext={next}/>;
+  else if (step === 6) content = <WaitingBackend/>
 
   return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        {content}
-        {canSkip && (
-            <Button title="Passer" onPress={next} />
-        )}
-        {step === 5 && (
-            <Button title="Terminer" onPress={next} />
-        )}
+        <AnimatePresence exitBeforeEnter>
+          <MotiView
+              key={step}
+              from={{ opacity: 0, translateY: 24 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              exit={{ opacity: 0, translateY: -24 }}
+              transition={{ type: 'timing', duration: 400 }}
+              style={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' }}
+          >
+            {content}
+          </MotiView>
+        </AnimatePresence>
       </View>
   );
 }

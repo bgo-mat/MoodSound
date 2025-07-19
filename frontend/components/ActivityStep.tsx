@@ -60,7 +60,7 @@ export default function ActivityStep({ onNext }: { onNext: () => void }) {
     const startAll = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        console.log('Permission GPS non accordée');
+        if (onNext) onNext();
         return;
       }
 
@@ -276,7 +276,6 @@ export default function ActivityStep({ onNext }: { onNext: () => void }) {
             color="#50f3bb"
             style={{ marginVertical: 32 }}
         />
-        <Text style={{ color: 'white', marginTop: 16 }}>Analyse des données en cours...</Text>
       </View>
   );
 
