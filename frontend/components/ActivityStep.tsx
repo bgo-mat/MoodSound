@@ -122,8 +122,6 @@ export default function ActivityStep({ onNext }: { onNext: () => void }) {
     setActivityData({
       activityLevel,
       speedLevel,
-      country: null,
-      region: null,
     });
 
     setDone(true);

@@ -4,11 +4,8 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 
 from api.serializer import TestMoodSerializer
-
-from api.AI.video_analyzer import video_analyzer as analyze_video
-from api.AI.audio_analyzer import audio_analyzer as analyze_audio
-from api.AI.final_ai_call import final_ai_call as final_gpt_report
-
+from api.services.audio_analyzer import audio_analyzer
+from api.services.video_analyzer import video_analyzer
 
 class TestMoodViewSet(viewsets.ModelViewSet):
     serializer_class = TestMoodSerializer
@@ -24,23 +21,11 @@ class TestMoodViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
 
-        audio_path = data.get("audio_backend_path") or data.get("audioUri")
-        video_path = data.get("video_backend_path") or data.get("videoUri")
+        audio_path = data.get("audioUrl") or data.get("audioUri")
+        video_path = data.get("videoUrl") or data.get("videoUri")
 
-        async def run_analyzers():
-            audio_task = (
-                asyncio.to_thread(audio_analyzer, audio_path)
-                if audio_path
-                else asyncio.sleep(0, result=None)
-            )
-            video_task = (
-                asyncio.to_thread(video_analyzer, video_path)
-                if video_path
-                else asyncio.sleep(0, result=None)
-            )
-            return await asyncio.gather(audio_task, video_task)
-
-        audio_result, video_result = asyncio.run(run_analyzers())
+        audio_result = audio_analyzer(audio_path) if audio_path else None
+        video_result = video_analyzer(video_path) if video_path else None
 
         energy = data.get("energy")
         happiness = data.get("happiness")

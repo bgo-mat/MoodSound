@@ -43,18 +43,17 @@ export default function TestMoodScreen() {
       await new Promise(res => setTimeout(res, 500));
     }
     const payload = {
-      audioUrl,
-      videoUrl,
+      audioUrl:audioUrl,
+      videoUrl:videoUrl,
       activityData,
       happiness,
       energy,
       environnementData
     };
-    console.log(payload)
-
     try {
-
-      await api.post('/test-mood/', payload);
+      await api.post('/test-mood/', payload).then((data)=>{
+        console.log("response data icicicicici",data)
+      });
       // TODO Redirection après envoie
       router.replace('/');
     } catch (error) {

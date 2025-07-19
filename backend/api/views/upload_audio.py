@@ -16,11 +16,13 @@ class UploadAudioAPIView(APIView):
         if not uploaded:
             return Response({"error": "missing file"}, status=status.HTTP_400_BAD_REQUEST)
 
+        print("UPLOAD:", uploaded.content_type, uploaded.name, flush=True)
         allowed_types = {
             "audio/mpeg",
             "audio/mp3",
             "audio/wav",
             "audio/x-wav",
+            "audio/x-m4a",
             "audio/m4a",
             "audio/mp4",
         }
@@ -38,6 +40,7 @@ class UploadAudioAPIView(APIView):
             for chunk in uploaded.chunks():
                 dest.write(chunk)
 
-        relative_path = file_path.relative_to(settings.BASE_DIR)
+        relative_path = os.path.join("app", "assets", "audio", filename)
+        print(str(relative_path),flush=True)
         return Response({"audio_path": str(relative_path)})
 

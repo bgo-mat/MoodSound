@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { useMood } from '../services/mood';
-import api from '../services/api';
+import api, {uploadFile} from '../services/api';
 import { Audio } from 'expo-av';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -96,16 +96,19 @@ export default function MicrophoneStep({ onNext }: { onNext: () => void }) {
       setAudioUri(uri ?? null);
       if (uri) {
         setAudioUploading(true);
-        api.uploadAudio(uri)
+        uploadFile('/upload-audio/', uri, 'audio/m4a')
           .then(url => {
             setAudioUrl(url);
           })
-          .catch(() => setUploadError(true))
+          .catch((e) => {
+            setUploadError(true)
+            console.log(e)
+          })
           .finally(() => setAudioUploading(false));
       }
       setTimeout(() => { if (onNext) onNext(); }, 1300);
     } catch (err) {
-      //
+      console.log(err)
     } finally {
       setRecording(null);
       recordingRef.current = null;

@@ -6,18 +6,7 @@ from django.conf import settings
 
 
 def audio_analyzer(audio_path: str) -> dict:
-    """Analyse un fichier audio local via l'API OpenAI et retourne un résumé.
 
-    Parameters
-    ----------
-    audio_path : str
-        Chemin vers le fichier audio à analyser.
-
-    Returns
-    -------
-    dict
-        Résumé structuré de l'analyse du contenu audio.
-    """
     path = Path(audio_path)
     if not path.is_file():
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
