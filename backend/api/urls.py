@@ -1,8 +1,8 @@
 from django.urls import path
-from . import views
+from .views import SpotifyTokenViewSet, SpotifyFavoritesViewSet, TestMoodViewSet
 
 urlpatterns = [
-    path('spotify/token/', views.spotify_token, name='spotify-token'),
-    path('spotify/favorites/', views.spotify_favorites, name='spotify-favorites'),
-    path('test-mood/', views.test_mood, name='test-mood'),
+    path('spotify/token/', SpotifyTokenViewSet.as_view({'post': 'create'}), name='spotify-token'),
+    path('spotify/favorites/', SpotifyFavoritesViewSet.as_view({'get': 'list'}), name='spotify-favorites'),
+    path('test-mood/', TestMoodViewSet.as_view({'post': 'create'}), name='test-mood'),
 ]
