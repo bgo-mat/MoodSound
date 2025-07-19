@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Button, Text, TouchableOpacity } from 'react-native';
-import { CameraView, useCameraPermissions, useMicrophonePermissions, CameraType } from 'expo-camera';
-import * as MediaLibrary from 'expo-media-library';
+import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 
 export default function CameraStep() {
   const cameraRef = useRef<CameraView>(null);
@@ -17,7 +16,11 @@ export default function CameraStep() {
 
   const saveVideo = async () => {
     if (videoUri) {
-      //TODO envoyer la vidéo au back icicicic
+
+
+      //TODO Stocker la video dans un service/contexte pour le réutiliser plus tard
+
+
     }
   };
 

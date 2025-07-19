@@ -45,8 +45,10 @@ export default function MicrophoneStep() {
     try {
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
-      //TODO Envoyer l'audio au back ( formar M4A ? )
       setUri(uri);
+
+      //TODO Stocker l'audio dans un service/contexte pour le réutiliser plus tard
+
     } catch (err) {
       console.error('Failed to stop recording', err);
     } finally {
