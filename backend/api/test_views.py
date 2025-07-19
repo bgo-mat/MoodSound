@@ -12,7 +12,7 @@ class SpotifyTokenTests(TestCase):
         response._content = b'{"access_token": "abc", "refresh_token": "def"}'
         return response
 
-    @patch('api.views.requests.post')
+    @patch('api.views.spotify_token.requests.post')
     def test_exchange_code(self, mock_post):
         mock_post.side_effect = self.mock_post
         response = self.client.post(reverse('spotify-token'), {'code': '123'})
@@ -35,12 +35,12 @@ class SpotifyFavoritesTests(TestCase):
         response._content = b'{"items": []}'
         return response
 
-    @patch('api.views.requests.get')
+    @patch('api.views.spotify_favorites.requests.get')
     def test_requires_authorization(self, mock_get):
         response = self.client.get(reverse('spotify-favorites'))
         self.assertEqual(response.status_code, 400)
 
-    @patch('api.views.requests.get')
+    @patch('api.views.spotify_favorites.requests.get')
     def test_fetch_favorites(self, mock_get):
         mock_get.side_effect = self.mock_get
         response = self.client.get(reverse('spotify-favorites'), HTTP_AUTHORIZATION='Bearer token123')
