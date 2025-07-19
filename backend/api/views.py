@@ -1,8 +1,7 @@
 import requests
-import urllib.parse
 from django.conf import settings
 import json
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 client_id = settings.SPOTIFY_CLIENT_ID
@@ -58,3 +57,19 @@ def spotify_favorites(request):
 
     print(r.json(), flush=True)
     return JsonResponse(r.json())
+
+
+@csrf_exempt
+def test_mood(request):
+    """Temporary endpoint to receive mood data from the mobile app."""
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({"error": "invalid json"}, status=400)
+
+    # For now we simply echo the received payload and log it server side
+    print(data, flush=True)
+    return JsonResponse({"status": "received", "data": data})
