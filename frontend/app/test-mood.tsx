@@ -24,22 +24,26 @@ export default function TestMoodScreen() {
   } = useMood();
 
   const next = () => {
-    if (step < 6) {
+    if (step < 5) {
       setStep(step + 1);
     } else {
+      setStep(step + 1);
       sendToBackend();
     }
   };
 
   async function sendToBackend() {
+    const payload = {
+      audioUri,
+      videoUri,
+      activity: activityData,
+      happiness,
+      energy,
+    };
+    console.log(payload)
+
     try {
-      const payload = {
-        audioUri,
-        videoUri,
-        activity: activityData,
-        happiness,
-        energy,
-      };
+
       await api.post('/test-mood', payload);
       // TODO Redirection après envoie
       router.replace('/');
