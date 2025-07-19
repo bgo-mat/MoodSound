@@ -7,6 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-ky2$#+js%vftp2=pd5vx18m^ejg=7)^b#yql!f17c&da!q=%nr'
 
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI", "myapp://callback")

@@ -1,5 +1,6 @@
-export const API_BASE_URL = "http://192.168.1.186:8000/api" //"http://10.109.255.231:8000/api";
-export const REDIRECT_URL ="exp://192.168.1.186:8081/callback" //"exp://10.109.255.231:8081/callback"
+// mettre ip locale : ipconfig getifaddr en0
+export const API_BASE_URL = "http://192.168.1.84:8000/api" //"http://10.109.255.231:8000/api";
+export const REDIRECT_URL ="exp://192.168.1.84:8081/callback" //"exp://10.109.255.231:8081/callback"
 interface RequestOptions {
   headers?: Record<string, string>;
 }

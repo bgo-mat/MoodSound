@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useMood } from '../services/mood';
 import { Audio } from 'expo-av';
 
-const DURATION = 10; // durée de l'enregistrement en secondes
+const DURATION = 5; // durée de l'enregistrement
 
 export default function MicrophoneStep({ onNext }: { onNext: () => void }) {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);

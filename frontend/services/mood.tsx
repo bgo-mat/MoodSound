@@ -14,10 +14,10 @@ export interface MoodContextValue {
     setVideoUri: (uri: string | null) => void;
     activityData: ActivityData | null;
     setActivityData: (data: ActivityData) => void;
-    happiness: number | null;
-    setHappiness: (h: number | null) => void;
-    energy: number | null;
-    setEnergy: (e: number | null) => void;
+    happiness: string | null;
+    setHappiness: (h: string | null) => void;
+    energy: string | null;
+    setEnergy: (e: string | null) => void;
     weather: any;
     setWeather: (w: any) => void;
 }
@@ -28,8 +28,8 @@ export function MoodProvider({ children }: { children: React.ReactNode }) {
     const [audioUri, setAudioUri] = useState<string | null>(null);
     const [videoUri, setVideoUri] = useState<string | null>(null);
     const [activityData, setActivityDataState] = useState<ActivityData | null>(null);
-    const [happiness, setHappiness] = useState<number | null>(null);
-    const [energy, setEnergy] = useState<number | null>(null);
+    const [happiness, setHappiness] = useState<string | null>(null);
+    const [energy, setEnergy] = useState<string | null>(null);
     const [weather, setWeather] = useState<any>(null);
 
     const setActivityData = (data: ActivityData) => {

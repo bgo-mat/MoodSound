@@ -48,7 +48,7 @@ export default function TestMoodScreen() {
       // TODO Redirection après envoie
       router.replace('/');
     } catch (error) {
-      console.error('Erreur d\'envoi au backend:', error);
+      // console.error('Erreur d\'envoi au backend:', error);
       // TODO gestion error
     }
   }

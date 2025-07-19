@@ -14,25 +14,35 @@ const smileys = [
 export default function HappyStep({ onNext }: { onNext: () => void }) {
     const { happiness, setHappiness } = useMood();
     const [locked, setLocked] = useState(false);
+    const [pendingNext, setPendingNext] = useState(false);
 
     // RESET à chaque affichage du composant
     useEffect(() => {
         setHappiness(null);
         setLocked(false);
+        setPendingNext(false);
     }, [setHappiness]);
+
+    // Déclenche onNext quand happiness a bien été mis à jour
+    useEffect(() => {
+        if (pendingNext && happiness) {
+            setTimeout(() => {
+                if (onNext) onNext();
+            }, 700);
+            setPendingNext(false);
+        }
+    }, [pendingNext, happiness, onNext]);
 
     const handleSelect = (idx: number) => {
         if (locked) return;
-        setHappiness(idx + 1);
+        setHappiness(smileys[idx].label);
         setLocked(true);
-        setTimeout(() => {
-            if (onNext) onNext();
-        }, 700);
+        setPendingNext(true);  // On attend que le context soit à jour
     };
 
     // Affichage unique et centré si verrouillé
     if (locked && happiness) {
-        const selected = smileys[happiness - 1];
+        const selected = smileys.find(s => s.label === happiness)!;
         return (
             <View style={styles.container}>
                 <Text style={styles.title}>Comment tu te sens&nbsp;?</Text>
@@ -43,12 +53,11 @@ export default function HappyStep({ onNext }: { onNext: () => void }) {
                         transition={{ type: 'timing', duration: 400 }}
                         style={styles.smileyBtn}
                     >
-                        {/* @ts-ignore */}
                         <MotiText
                             style={[styles.smiley, styles.smileySelected]}
-                            // @ts-ignore
+                            //@ts-ignore
                             from={{ fontSize: 34 }}
-                            // @ts-ignore
+                            //@ts-ignore
                             animate={{ fontSize: 64 }}
                             transition={{ type: 'timing', duration: 400 }}
                         >
@@ -70,21 +79,15 @@ export default function HappyStep({ onNext }: { onNext: () => void }) {
                     {smileys.map((item, idx) => (
                         <MotiView
                             key={idx}
-                            from={{
-                                scale: 1,
-                                opacity: 1,
-                            }}
+                            from={{ scale: 1, opacity: 1 }}
                             animate={{
-                                scale: happiness === idx + 1 ? 1.2 : 1,
-                                opacity: happiness === idx + 1 ? 1 : 0.6,
+                                scale: happiness === item.label ? 1.2 : 1,
+                                opacity: happiness === item.label ? 1 : 0.6,
                             }}
-                            transition={{
-                                type: 'timing',
-                                duration: 400,
-                            }}
+                            transition={{ type: 'timing', duration: 400 }}
                             style={[
                                 styles.smileyBtn,
-                                happiness === idx + 1 && styles.selected,
+                                happiness === item.label && styles.selected,
                             ]}
                         >
                             <TouchableOpacity
@@ -93,16 +96,15 @@ export default function HappyStep({ onNext }: { onNext: () => void }) {
                                 accessibilityLabel={item.label}
                                 style={{ alignItems: 'center', justifyContent: 'center' }}
                             >
-                                {/* @ts-ignore */}
                                 <MotiText
                                     style={[
                                         styles.smiley,
-                                        happiness === idx + 1 && styles.smileySelected
+                                        happiness === item.label && styles.smileySelected
                                     ]}
-                                    // @ts-ignore
+                                    //@ts-ignore
                                     from={{ fontSize: 34 }}
-                                    // @ts-ignore
-                                    animate={{ fontSize: happiness === idx + 1 ? 48 : 34 }}
+                                    //@ts-ignore
+                                    animate={{ fontSize: happiness === item.label ? 48 : 34 }}
                                     transition={{ type: 'timing', duration: 400 }}
                                 >
                                     {item.emoji}
@@ -118,7 +120,7 @@ export default function HappyStep({ onNext }: { onNext: () => void }) {
 
 const styles = StyleSheet.create({
     container: { alignItems: 'center', marginTop: 30 },
-    title: { color: '#fff', fontSize: 20, fontWeight: '600',marginBottom: 40},
+    title: { color: '#fff', fontSize: 20, fontWeight: '600', marginBottom: 40 },
     smileyRow: {
         flexDirection: 'row',
         gap: 16,

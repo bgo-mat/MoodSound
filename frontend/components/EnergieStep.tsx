@@ -19,9 +19,9 @@ export default function EnergieStep({ onNext }: { onNext: () => void }) {
         setLocked(false);
     }, [setEnergy]);
 
-    const handleSelect = (val: number) => {
+    const handleSelect = (item: any) => {
         if (locked) return;
-        setEnergy(val);
+        setEnergy(item.label);
         setLocked(true);
         setTimeout(() => {
             if (onNext) onNext();
@@ -30,7 +30,7 @@ export default function EnergieStep({ onNext }: { onNext: () => void }) {
 
     // Affichage unique et centré si verrouillé
     if (locked && energy) {
-        const selected = energyLevels.find(e => e.value === energy);
+        const selected = energyLevels.find(e => e.label === energy);
         return (
             <View style={styles.container}>
                 <Text style={styles.title}>Ton niveau d'énergie&nbsp;?</Text>
@@ -73,8 +73,8 @@ export default function EnergieStep({ onNext }: { onNext: () => void }) {
                                 opacity: 1,
                             }}
                             animate={{
-                                scale: energy === item.value ? 1.2 : 1,
-                                opacity: energy === item.value ? 1 : 0.65,
+                                scale: energy === item.label ? 1.2 : 1,
+                                opacity: energy === item.label ? 1 : 0.65,
                             }}
                             transition={{
                                 type: 'timing',
@@ -82,12 +82,12 @@ export default function EnergieStep({ onNext }: { onNext: () => void }) {
                             }}
                             style={[
                                 styles.btn,
-                                energy === item.value && styles.selected,
+                                energy === item.label && styles.selected,
                             ]}
                         >
                             <TouchableOpacity
                                 disabled={locked}
-                                onPress={() => handleSelect(item.value)}
+                                onPress={() => handleSelect(item)}
                                 accessibilityLabel={item.label}
                                 style={{ alignItems: 'center', justifyContent: 'center' }}
                             >
@@ -95,7 +95,7 @@ export default function EnergieStep({ onNext }: { onNext: () => void }) {
                                 <MotiText
                                     style={[
                                         styles.emoji,
-                                        energy === item.value && styles.emojiSelected
+                                        energy === item.label && styles.emojiSelected
                                     ]}
                                     // @ts-ignore
                                     from={{ fontSize: 32 }}
@@ -107,7 +107,7 @@ export default function EnergieStep({ onNext }: { onNext: () => void }) {
                                 </MotiText>
                                 <Text style={[
                                     styles.label,
-                                    energy === item.value && styles.labelSelected
+                                    energy === item.label && styles.labelSelected
                                 ]}>
                                     {item.label}
                                 </Text>
