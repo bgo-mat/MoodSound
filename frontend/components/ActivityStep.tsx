@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Button } from 'react-native';
+import { useMood } from '../services/mood';
 import { Accelerometer } from 'expo-sensors';
 import * as Location from 'expo-location';
 import {LocationSubscription} from "expo-location";
@@ -40,6 +41,8 @@ export default function ActivityStep() {
   const [isRecording, setIsRecording] = useState(false);
   const [country, setCountry] = useState<string | null>(null);
   const [region, setRegion] = useState<string | null>(null);
+
+  const { setActivityData } = useMood();
 
   const normArray:React.RefObject<number[]> = useRef([0]);
   const speedArray:React.RefObject<number[]> = useRef([]);
@@ -122,8 +125,13 @@ export default function ActivityStep() {
     const geoResult = await fetchCountryAndRegion();
 
     if (geoResult) {
-
-      //TODO Stocker geoResult, activityLevel et speedLevel dans un service/contexte pour le réutiliser plus tard
+      // Store activity and location data in context for later use
+      setActivityData({
+        activityLevel: actLevel,
+        speedLevel: spdLevel,
+        country: geoResult.country,
+        region: geoResult.region,
+      });
     }
   };
 
