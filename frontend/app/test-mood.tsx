@@ -10,6 +10,7 @@ import { useMood } from '../services/mood';
 import api from '../services/api';
 import WaitingBackend from "@/components/waitingBackend";
 import {AnimatePresence, MotiView} from "moti";
+import EnvironnementStep from "@/components/EnvironnementStep";
 
 export default function TestMoodScreen() {
   const [step, setStep] = useState(1);
@@ -24,7 +25,7 @@ export default function TestMoodScreen() {
   } = useMood();
 
   const next = () => {
-    if (step < 5) {
+    if (step < 6) {
       setStep(step + 1);
     } else {
       setStep(step + 1);
@@ -44,7 +45,7 @@ export default function TestMoodScreen() {
 
     try {
 
-      await api.post('/test-mood', payload);
+      await api.post('/test-mood/', payload);
       // TODO Redirection après envoie
       router.replace('/');
     } catch (error) {
@@ -57,9 +58,10 @@ export default function TestMoodScreen() {
   if (step === 1) content = <CameraStep onNext={next} />;
   else if (step === 2) content = <MicrophoneStep onNext={next}/>;
   else if (step === 3) content = <ActivityStep onNext={next}/>;
-  else if (step === 4) content = <EnergieStep onNext={next}/>;
-  else if (step === 5) content = <HappyStep onNext={next}/>;
-  else if (step === 6) content = <WaitingBackend/>
+  else if (step === 4) content = <EnvironnementStep onNext={next}/>;
+  else if (step === 5) content = <EnergieStep onNext={next}/>;
+  else if (step === 6) content = <HappyStep onNext={next}/>;
+  else if (step === 7) content = <WaitingBackend/>
 
   return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
