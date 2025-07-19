@@ -17,6 +17,10 @@ export default function TestMoodScreen() {
   const router = useRouter();
 
   const {
+    audioUrl,
+    videoUrl,
+    audioUploading,
+    videoUploading,
     audioUri,
     videoUri,
     activityData,
@@ -35,9 +39,12 @@ export default function TestMoodScreen() {
   };
 
   async function sendToBackend() {
+    while (audioUploading || videoUploading) {
+      await new Promise(res => setTimeout(res, 500));
+    }
     const payload = {
-      audioUri,
-      videoUri,
+      audioUrl,
+      videoUrl,
       activityData,
       happiness,
       energy,
