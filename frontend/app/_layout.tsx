@@ -34,7 +34,7 @@ export default function RootLayout() {
               <Stack.Screen name="callback" options={{ headerShown: false }} />
               <Stack.Screen name="connected" options={{ title: 'Connected' }} />
               <Stack.Screen name="test-mood" options={{ title: 'Test Mood', headerShown: false }} />
-              <Stack.Screen name="mood-result" options={{title: 'Mood Result'}}/>
+              <Stack.Screen name="mood-result" options={{title: 'Mood Result', headerShown: false}}/>
             </Stack>
           </AuthProvider>
         </MoodProvider>

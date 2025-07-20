@@ -1,8 +1,9 @@
-import React, { useRef, useState } from "react";
-import { View, Text, Image, Dimensions, StyleSheet, TouchableOpacity, Platform, ScrollView } from "react-native";
-import Carousel from "react-native-snap-carousel";
+import React, {useEffect, useRef, useState} from "react";
+import {View, Text, Image, Dimensions, StyleSheet, TouchableOpacity, Platform, ScrollView, Linking} from "react-native";
 import { Audio } from "expo-av";
+import { FlatList } from "react-native";
 import { usePreviewSong } from "../services/PreviewSong"
+import {router} from "expo-router";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -62,7 +63,7 @@ export default function MoodResult() {
                     if (Platform.OS === "web") {
                         window.open(item.external_urls.spotify, "_blank");
                     } else {
-                        // Pour mobile, selon ta navigation
+                        Linking.openURL(item.external_urls.spotify);
                     }
                 }}
             >
@@ -80,17 +81,20 @@ export default function MoodResult() {
     }
 
     return (
-        <View style={{ flex: 1, backgroundColor: "#181818" }}>
+        <View style={{ flex: 1, backgroundColor: "#181818", paddingLeft:15, paddingTop:24 }}>
             <Text style={styles.header}>Voici ta sélection musicale</Text>
-            <Carousel
+            <FlatList
                 data={tracksData}
                 renderItem={renderItem}
-                sliderWidth={screenWidth}
-                itemWidth={screenWidth * 0.8}
-                layout={"default"}
-                inactiveSlideOpacity={0.6}
-                contentContainerCustomStyle={{ alignItems: "center" }}
+                keyExtractor={(_, i) => i.toString()}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                ItemSeparatorComponent={() => <View style={{ width: 24 }} />}
             />
+            <TouchableOpacity style={styles.buttonRecord} onPress={() => router.push('/test-mood')}>
+                <Text style={styles.text}>Recommencer</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -114,7 +118,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.18,
         shadowRadius: 12,
         elevation: 3,
-        minHeight: 420,
+        height: "80%",
+        width:340
     },
     image: {
         width: 180,
@@ -135,6 +140,26 @@ const styles = StyleSheet.create({
         fontSize: 15,
         marginBottom: 12,
         textAlign: "center",
+    },
+    buttonRecord: {
+        position: "absolute",
+        bottom: "5%",
+        left: "50%",
+        backgroundColor: '#50f3bb',
+        padding: 12,
+        borderRadius: 32,
+        alignItems: 'center',
+        shadowColor: '#50f3bb',
+        shadowOpacity: 0.17,
+        shadowRadius: 8,
+        elevation: 2,
+        minWidth: 210,
+        transform: [{ translateX: -105 }],
+    },
+    text: {
+        color: '#000',
+        fontSize: 18,
+        fontWeight: 'bold'
     },
     playButton: {
         backgroundColor: "#1db954",
