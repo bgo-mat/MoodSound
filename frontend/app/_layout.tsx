@@ -9,6 +9,7 @@ import { useColorScheme } from 'react-native';
 import { AuthProvider } from '../services/auth';
 import { MoodProvider } from '../services/mood';
 import Header from '../components/Header';
+import {PreviewSongProvider} from "@/services/PreviewSong";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -23,18 +24,21 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <MoodProvider>
-        <AuthProvider>
-          <Header />
-          <Stack>
-            <Stack.Screen name="index" options={{ title: 'Home' }} />
-            <Stack.Screen name="login" options={{ title: 'Login' }} />
-            <Stack.Screen name="callback" options={{ headerShown: false }} />
-            <Stack.Screen name="connected" options={{ title: 'Connected' }} />
-            <Stack.Screen name="test-mood" options={{ title: 'Test Mood' }} />
-          </Stack>
-        </AuthProvider>
-      </MoodProvider>
+      <PreviewSongProvider>
+        <MoodProvider>
+          <AuthProvider>
+            <Header />
+            <Stack>
+              <Stack.Screen name="index" options={{ title: 'Home' }} />
+              <Stack.Screen name="login" options={{ title: 'Login' }} />
+              <Stack.Screen name="callback" options={{ headerShown: false }} />
+              <Stack.Screen name="connected" options={{ title: 'Connected' }} />
+              <Stack.Screen name="test-mood" options={{ title: 'Test Mood', headerShown: false }} />
+              <Stack.Screen name="mood-result" options={{title: 'Mood Result'}}/>
+            </Stack>
+          </AuthProvider>
+        </MoodProvider>
+      </PreviewSongProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
   );

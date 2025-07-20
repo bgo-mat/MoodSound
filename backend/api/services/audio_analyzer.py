@@ -6,7 +6,6 @@ from django.conf import settings
 
 
 def audio_analyzer(audio_path: str) -> dict:
-
     path = Path(audio_path)
     if not path.is_file():
         raise FileNotFoundError(f"Audio file not found: {audio_path}")
@@ -20,15 +19,19 @@ def audio_analyzer(audio_path: str) -> dict:
         "'energie', 'hesitations' et 'resume'."
         "Donne-moi la transcription, puis décris l’ambiance sonore: y a-t-il du bruit, "
         "de la musique, des voix en fond? Peut-on deviner le lieu: métro, extérieur, intérieur, etc. ?"
-        "Tu me donnera une réponse qui ne dépasse pas les 300 character"
+        "Tu me donnera une réponse qui ne dépasse pas les 200 character"
     )
 
     with open(audio_path, "rb") as audio_file:
-        result = client.audio.transcriptions.create(
-            model="gpt-4o-transcribe",
-            file=audio_file,
-            response_format="json",
-            prompt=analysis_instructions
-        )
+        try:
+            call = client.audio.transcriptions.create(
+                model="gpt-4o-transcribe",
+                file=audio_file,
+                response_format="json",
+                prompt=analysis_instructions,
+            )
+            result = call.text
+        except Exception as e:
+            result = "[ERROR] No summary"
 
-    return result.text
+    return result

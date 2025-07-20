@@ -11,10 +11,12 @@ import api from '../services/api';
 import WaitingBackend from "@/components/waitingBackend";
 import {AnimatePresence, MotiView} from "moti";
 import EnvironnementStep from "@/components/EnvironnementStep";
+import {usePreviewSong} from "../services/PreviewSong";
 
 export default function TestMoodScreen() {
   const [step, setStep] = useState(1);
   const router = useRouter();
+  const { setMusics,setSpotifyClientToken, setSpotifySecretToken, fetchSpotifyTracks } = usePreviewSong();
 
   const {
     audioUrl,
@@ -52,10 +54,21 @@ export default function TestMoodScreen() {
     };
     try {
       await api.post('/test-mood/', payload).then((data)=>{
-        console.log("response data icicicicici",data)
+
+        // @ts-ignore
+        if(data.musics && data.client_token && data.secret_token){
+          // @ts-ignore
+          setMusics(data.musics);
+          // @ts-ignore
+          setSpotifyClientToken(data.client_token)
+          // @ts-ignore
+          setSpotifySecretToken(data.secret_token)
+          // @ts-ignore
+          fetchSpotifyTracks(data.musics, data.secret_token, data.client_token);
+
+          router.push('/mood-result')
+        }
       });
-      // TODO Redirection après envoie
-      router.replace('/');
     } catch (error) {
       // console.error('Erreur d\'envoi au backend:', error);
       // TODO gestion error

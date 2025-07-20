@@ -2,8 +2,10 @@ import requests
 from rest_framework import viewsets, status, serializers
 from rest_framework.response import Response
 
+
 class DummySerializer(serializers.Serializer):
     pass
+
 
 class SpotifyFavoritesViewSet(viewsets.ModelViewSet):
     """Return user's liked tracks from Spotify."""
@@ -23,5 +25,8 @@ class SpotifyFavoritesViewSet(viewsets.ModelViewSet):
         headers = {"Authorization": f"Bearer {token}"}
         r = requests.get(url, headers=headers)
         if r.status_code != 200:
-            return Response({"error": "spotify request failed", "details": r.text}, status=r.status_code)
+            return Response(
+                {"error": "spotify request failed", "details": r.text},
+                status=r.status_code,
+            )
         return Response(r.json())

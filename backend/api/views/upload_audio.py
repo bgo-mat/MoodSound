@@ -14,9 +14,10 @@ class UploadAudioAPIView(APIView):
     def post(self, request, *args, **kwargs):
         uploaded = request.FILES.get("file")
         if not uploaded:
-            return Response({"error": "missing file"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "missing file"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        print("UPLOAD:", uploaded.content_type, uploaded.name, flush=True)
         allowed_types = {
             "audio/mpeg",
             "audio/mp3",
@@ -27,7 +28,9 @@ class UploadAudioAPIView(APIView):
             "audio/mp4",
         }
         if uploaded.content_type not in allowed_types:
-            return Response({"error": "invalid file type"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "invalid file type"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         audio_dir = Path(settings.BASE_DIR) / "app" / "assets" / "audio"
         audio_dir.mkdir(parents=True, exist_ok=True)
@@ -41,6 +44,4 @@ class UploadAudioAPIView(APIView):
                 dest.write(chunk)
 
         relative_path = os.path.join("app", "assets", "audio", filename)
-        print(str(relative_path),flush=True)
         return Response({"audio_path": str(relative_path)})
-

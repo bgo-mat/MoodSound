@@ -9,5 +9,5 @@ __all__ = [
     "SpotifyFavoritesViewSet",
     "TestMoodViewSet",
     "UploadAudioAPIView",
-    "UploadVideoAPIView"
+    "UploadVideoAPIView",
 ]

@@ -5,6 +5,10 @@ from api.serializer import TestMoodSerializer
 from api.services.audio_analyzer import audio_analyzer
 from api.services.final_ai_call import final_ai_call
 from api.services.video_analyzer import video_analyzer
+from django.conf import settings
+
+SPOTIFY_CLIENT = settings.SPOTIFY_CLIENT_ID
+SPOTIFY_CLIENT_SECRET = settings.SPOTIFY_CLIENT_SECRET
 
 
 class TestMoodViewSet(viewsets.ModelViewSet):
@@ -14,7 +18,11 @@ class TestMoodViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            data = request.data if isinstance(request.data, dict) else json.loads(request.body)
+            data = (
+                request.data
+                if isinstance(request.data, dict)
+                else json.loads(request.body)
+            )
         except Exception:
             return Response({"error": "invalid json"}, status=400)
 
@@ -33,13 +41,10 @@ class TestMoodViewSet(viewsets.ModelViewSet):
         environnement = data.get("environnementData")
 
         final_result = final_ai_call(
-            audio_result,
-            video_result,
-            energy,
-            happiness,
-            activity,
-            environnement)
+            audio_result, video_result, energy, happiness, activity, environnement
+        )
 
         return Response({
-            final_result
-        })
+            "musics": final_result,
+            "client_token": SPOTIFY_CLIENT,
+            "secret_token": SPOTIFY_CLIENT_SECRET})

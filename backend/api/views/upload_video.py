@@ -13,9 +13,15 @@ class UploadVideoAPIView(APIView):
     def post(self, request, *args, **kwargs):
         video_file = request.FILES.get("file")
         if not video_file:
-            return Response({"error": "missing file"}, status=status.HTTP_400_BAD_REQUEST)
-        if not video_file.content_type or not video_file.content_type.startswith("video/"):
-            return Response({"error": "invalid file type"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "missing file"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        if not video_file.content_type or not video_file.content_type.startswith(
+            "video/"
+        ):
+            return Response(
+                {"error": "invalid file type"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         ext = Path(video_file.name).suffix or ".mp4"
         filename = f"{uuid4().hex}{ext}"

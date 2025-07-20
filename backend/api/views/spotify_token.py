@@ -3,8 +3,10 @@ from django.conf import settings
 from rest_framework import viewsets, status, serializers
 from rest_framework.response import Response
 
+
 class DummySerializer(serializers.Serializer):
     pass
+
 
 class SpotifyTokenViewSet(viewsets.ModelViewSet):
     """Exchange authorization code for Spotify tokens."""
@@ -30,6 +32,8 @@ class SpotifyTokenViewSet(viewsets.ModelViewSet):
         }
         r = requests.post(token_url, data=payload)
         if r.status_code != 200:
-            return Response({"error": "token request failed", "details": r.text}, status=400)
+            return Response(
+                {"error": "token request failed", "details": r.text}, status=400
+            )
 
         return Response(r.json())
