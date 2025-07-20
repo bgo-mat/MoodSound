@@ -48,23 +48,19 @@ export default function ActivityStep({ onNext }: { onNext: () => void }) {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    progressAnim.setValue(0);
-    Animated.timing(progressAnim, {
-      toValue: 1,
-      duration: 5000,
-      useNativeDriver: false,
-      easing: Easing.linear,
-    }).start();
-
     let timer: number | null;
 
     const startSensors = async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        if (onNext) onNext();
-        return;
-      }
 
+      progressAnim.setValue(0);
+      Animated.timing(progressAnim, {
+        toValue: 1,
+        duration: 5000,
+        useNativeDriver: false,
+        easing: Easing.linear,
+      }).start();
+
+      // ici, on suppose que la permission est déjà granted
       normArray.current = [];
       speedArray.current = [];
 
@@ -93,14 +89,23 @@ export default function ActivityStep({ onNext }: { onNext: () => void }) {
       }, 5000);
     };
 
-    startSensors();
+    const askPermissionAndStart = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        startSensors();
+      }
+      if (status === 'denied') {
+        if (onNext) onNext();
+      }
+    };
+
+    askPermissionAndStart();
 
     return () => {
       if (timer) clearTimeout(timer);
       if (accelSub.current) accelSub.current.remove();
       if (locSub.current) locSub.current.remove();
     };
-    // eslint-disable-next-line
   }, []);
 
   const stopSensors = async () => {

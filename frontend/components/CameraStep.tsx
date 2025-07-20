@@ -20,6 +20,11 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    if (!cameraPermission) requestCameraPermission();
+    if (!micPermission) requestMicPermission();
+  }, [cameraPermission, micPermission]);
+
+  useEffect(() => {
     if (
         cameraPermission?.status === 'denied' ||
         micPermission?.status === 'denied'
@@ -32,7 +37,6 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
     setStep('recording');
     setSecondsLeft(COUNTDOWN);
 
-    // Animation border progress
     progressAnim.setValue(0);
     Animated.timing(progressAnim, {
       toValue: 1,
@@ -55,11 +59,11 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
           setVideoUri(video.uri);
           setVideoUploading(true);
           api.uploadVideo(video.uri)
-            .then(url => {
-              setVideoUrl(url);
-            })
-            .catch(() => setUploadError(true))
-            .finally(() => setVideoUploading(false));
+              .then(url => {
+                setVideoUrl(url);
+              })
+              .catch(() => setUploadError(true))
+              .finally(() => setVideoUploading(false));
         }
         setStep('done');
         setTimeout(() => { if (onNext) onNext(); }, 1300);
@@ -84,36 +88,30 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
     outputRange: [circumference, 0],
   });
 
-  if (!cameraPermission || !micPermission) {
-    return <View style={styles.container}><Text>Demande de permissions...</Text></View>;
-  }
-  if (!cameraPermission.granted || !micPermission.granted) {
+  if (cameraPermission?.status !== 'granted' || micPermission?.status !== 'granted') {
     return (
-        <View style={styles.container}>
-          <Text>Permission refusée pour la caméra ou le micro.</Text>
-          <TouchableOpacity style={styles.buttonRecord} onPress={() => { requestCameraPermission(); requestMicPermission(); }}>
-            <Text style={styles.text}>Accorder Permissions</Text>
-          </TouchableOpacity>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+          <Text style={{ color: "#fff" }}>Demande de permissions caméra et micro...</Text>
         </View>
     );
   }
 
+  // Sinon, rendu normal avec la caméra
   return (
       <View style={styles.container}>
         <CameraView
+            key={cameraPermission.status + '-' + micPermission.status}
             ref={cameraRef}
             style={styles.camera}
             facing={facing}
             mode="video"
         />
 
-        {/* Switch camera */}
         <TouchableOpacity style={styles.switchBtn} onPress={handleSwitchCamera}>
           <Text style={styles.switchIcon}>🔄</Text>
         </TouchableOpacity>
 
         <View style={styles.controls}>
-          {/* Step idle */}
           {step === 'idle' && (
               <View style={styles.previewContainer}>
                 <Text style={styles.infoText}>
@@ -124,14 +122,11 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
                 </TouchableOpacity>
               </View>
           )}
-
-          {/* Step recording */}
-          {(step === 'recording' || step === 'done')  && (
+          {(step === 'recording' || step === 'done') && (
               <View style={styles.previewContainer}>
-                <View style={{alignItems: 'center', justifyContent: 'center', marginBottom: 12}}>
-                  <View style={{position: 'relative', width: 108, height: 108, alignItems: 'center', justifyContent: 'center'}}>
-                    {/* Progress Circle */}
-                    <Animated.View style={{position: 'absolute', top: 0, left: 0}}>
+                <View style={{ alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                  <View style={{ position: 'relative', width: 108, height: 108, alignItems: 'center', justifyContent: 'center' }}>
+                    <Animated.View style={{ position: 'absolute', top: 0, left: 0 }}>
                       <Svg width={108} height={108}>
                         <Circle
                             cx={54}
@@ -154,30 +149,14 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
                         />
                       </Svg>
                     </Animated.View>
-                    {/* Camera Icon */}
-                    {step === 'done' &&(
+                    {step === 'done' && (
                         <Text style={{ fontSize: 54, textAlign: 'center', color: '#fff', zIndex: 2 }}>✅</Text>
                     )}
-                    {step === 'recording' &&(
+                    {step === 'recording' && (
                         <Text style={{ fontSize: 54, textAlign: 'center', color: '#fff', zIndex: 2 }}>🎥</Text>
                     )}
                   </View>
                 </View>
-
-                {/*{step === 'done' && (*/}
-                {/*    <>*/}
-                {/*        <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Parfait !</Text>*/}
-                {/*        {videoUploading && !uploadError && (*/}
-                {/*            <Text style={{ color: '#fff', marginTop: 8 }}>Upload video...</Text>*/}
-                {/*        )}*/}
-                {/*        {uploadError && (*/}
-                {/*            <Text style={{ color: '#ff8080', marginTop: 8 }}>Erreur lors de l'upload</Text>*/}
-                {/*        )}*/}
-                {/*    </>*/}
-                {/*)}*/}
-                {/*{step === 'recording' && (*/}
-                {/*    <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Enregistrement...</Text>*/}
-                {/*)}*/}
               </View>
           )}
         </View>
