@@ -49,6 +49,14 @@ class TestMoodViewSet(viewsets.ModelViewSet):
 
         end = time.time()
         print(f"[TIMER][TestMoodViewSet.create] END at {end:.2f} (elapsed: {end-start:.2f}s)", flush=True)
+
+        print("video_result ::::", video_result,
+              "audio_result ::::", audio_result,
+              "happiness ::::", happiness,
+              "activity ::::", activity,
+              "environnement ::::", environnement,
+            flush=True)
+
         return Response({
             "musics": final_result,
             "client_token": SPOTIFY_CLIENT,

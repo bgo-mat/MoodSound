@@ -77,6 +77,8 @@ def video_analyzer(
                 ],
             )
             desc = response.output[0].content[0].text
+
+            print("frame_analyzer ::::", desc)
         except Exception as e:
             desc = "[ERROR] No response"
         frames.append(FrameResult(index=idx, description=desc))
