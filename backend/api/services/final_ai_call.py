@@ -36,7 +36,8 @@ def final_ai_call(
         "DATA : "
         + json.dumps(environnement, ensure_ascii=False)
         + "\n\n"
-        "En tenant compte de tous ces éléments (son, image, ressenti, météo, contexte), propose-moi 5 musiques qui collent le mieux à l’ambiance globale. "
+        "En tenant compte de tous ces éléments (son, image, ressenti, météo, contexte), propose-moi 5 musiques qui collent le mieux à l’ambiance globale."
+        "2 musiques connues, 2 musiques moyennement connues, et enfin une musique niche vraiment découverte.\n"
         'Donne uniquement la liste au format JSON array, sans texte autour, sans description : ["titre 1", "titre 2", "titre 3", "titre 4", "titre 5"]'
     )
 

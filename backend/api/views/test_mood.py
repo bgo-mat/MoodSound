@@ -1,4 +1,5 @@
 import json
+import time
 from rest_framework import viewsets
 from rest_framework.response import Response
 from api.serializer import TestMoodSerializer
@@ -17,6 +18,8 @@ class TestMoodViewSet(viewsets.ModelViewSet):
     http_method_names = ["post"]
 
     def create(self, request, *args, **kwargs):
+        start = time.time()
+        print(f"[TIMER][TestMoodViewSet.create] START at {start:.2f}", flush=True)
         try:
             data = (
                 request.data
@@ -44,7 +47,10 @@ class TestMoodViewSet(viewsets.ModelViewSet):
             audio_result, video_result, energy, happiness, activity, environnement
         )
 
+        end = time.time()
+        print(f"[TIMER][TestMoodViewSet.create] END at {end:.2f} (elapsed: {end-start:.2f}s)", flush=True)
         return Response({
             "musics": final_result,
             "client_token": SPOTIFY_CLIENT,
-            "secret_token": SPOTIFY_CLIENT_SECRET})
+            "secret_token": SPOTIFY_CLIENT_SECRET
+        })

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, Dimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function WaitingBackend() {
     // Animation des points
@@ -16,7 +15,7 @@ export default function WaitingBackend() {
         return () => clearInterval(interval);
     }, []);
 
-    // Animation de l’emoji cerveau (rebond)
+    // Animation cerveau rebond
     const bounceAnim = useRef(new Animated.Value(0)).current;
     useEffect(() => {
         Animated.loop(
@@ -27,33 +26,43 @@ export default function WaitingBackend() {
         ).start();
     }, [bounceAnim]);
 
+    // Animation de la barre de chargement
+    const loaderAnim = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+        Animated.timing(loaderAnim, {
+            toValue: 1,
+            duration: 20000, // 20 sec
+            useNativeDriver: false,
+            easing: Easing.inOut(Easing.quad),
+        }).start();
+    }, [loaderAnim]);
+
+    // La width de la barre (de 0% à 100%)
+    const barWidth = loaderAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0%', '100%'],
+    });
+
     return (
-            <View style={styles.container}>
-                <Animated.View style={[styles.brainBubble, { transform: [{ translateY: bounceAnim }] }]}>
-                    <Text style={{ fontSize: 68, shadowColor: '#0ef', shadowOpacity: 0.18, shadowRadius: 12 }}>🧠</Text>
-                </Animated.View>
-                <Text style={styles.title}>Analyse IA en cours{dots}</Text>
-                <Text style={styles.subtitle}>
-                    Nos algorithmes réfléchissent à ta musique parfaite.
-                </Text>
-                <View style={styles.barLoaderBG}>
-                    <Animated.View style={styles.barLoaderFill} />
-                </View>
-                <Text style={styles.waitHint}>
-                    Cela prend quelques secondes&nbsp;: <Text style={{ fontWeight: 'bold', color: '#fff' }}>reste zen&nbsp;!</Text>
-                </Text>
+        <View style={styles.container}>
+            <Animated.View style={[styles.brainBubble, { transform: [{ translateY: bounceAnim }] }]}>
+                <Text style={{ fontSize: 68, shadowColor: '#0ef', shadowOpacity: 0.18, shadowRadius: 12 }}>🧠</Text>
+            </Animated.View>
+            <Text style={styles.title}>Analyse IA en cours{dots}</Text>
+            <Text style={styles.subtitle}>
+                Nos algorithmes réfléchissent à ta musique parfaite.
+            </Text>
+            <View style={styles.barLoaderBG}>
+                <Animated.View style={[styles.barLoaderFill, { width: barWidth }]} />
             </View>
+            <Text style={styles.waitHint}>
+                Cela prend quelques secondes&nbsp;: <Text style={{ fontWeight: 'bold', color: '#fff' }}>reste zen&nbsp;!</Text>
+            </Text>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    bg: {
-        flex: 1,
-        width: width,
-        height: height,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     container: {
         marginTop: -60,
         width: '88%',
@@ -108,7 +117,7 @@ const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: '#50f3bb',
         borderRadius: 9,
-        width: '65%',
+        width: '0%', // Sera animé !
     },
     waitHint: {
         marginTop: 18,
