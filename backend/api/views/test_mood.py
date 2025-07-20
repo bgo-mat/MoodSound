@@ -1,11 +1,11 @@
 import json
-import asyncio
 from rest_framework import viewsets
 from rest_framework.response import Response
-
 from api.serializer import TestMoodSerializer
 from api.services.audio_analyzer import audio_analyzer
+from api.services.final_ai_call import final_ai_call
 from api.services.video_analyzer import video_analyzer
+
 
 class TestMoodViewSet(viewsets.ModelViewSet):
     serializer_class = TestMoodSerializer
@@ -17,7 +17,7 @@ class TestMoodViewSet(viewsets.ModelViewSet):
             data = request.data if isinstance(request.data, dict) else json.loads(request.body)
         except Exception:
             return Response({"error": "invalid json"}, status=400)
-        # Optionnel : validateur DRF
+
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
 
@@ -32,11 +32,14 @@ class TestMoodViewSet(viewsets.ModelViewSet):
         activity = data.get("activityData")
         environnement = data.get("environnementData")
 
+        final_result = final_ai_call(
+            audio_result,
+            video_result,
+            energy,
+            happiness,
+            activity,
+            environnement)
+
         return Response({
-            "audio_analysis": audio_result,
-            "video_analysis": video_result,
-            "energy": energy,
-            "happiness": happiness,
-            "activity": activity,
-            "environnement": environnement,
+            final_result
         })

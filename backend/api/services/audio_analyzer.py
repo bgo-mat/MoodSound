@@ -13,32 +13,22 @@ def audio_analyzer(audio_path: str) -> dict:
 
     client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
 
-    with path.open("rb") as f:
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1",
-            file=f,
-            response_format="text",
-        )
-
     analysis_instructions = (
         "Analyse la transcription suivante pour détecter : le ton général, "
         "l'émotion de la voix, l'énergie, les hésitations ou les moments de silence. "
         "Réponds uniquement avec un objet JSON ayant les clés 'ton', 'emotion', "
         "'energie', 'hesitations' et 'resume'."
+        "Donne-moi la transcription, puis décris l’ambiance sonore: y a-t-il du bruit, "
+        "de la musique, des voix en fond? Peut-on deviner le lieu: métro, extérieur, intérieur, etc. ?"
+        "Tu me donnera une réponse qui ne dépasse pas les 300 character"
     )
 
-    messages = [
-        {"role": "system", "content": "Tu es un assistant d'analyse audio."},
-        {
-            "role": "user",
-            "content": f"Transcription :\n{transcript}\n\n{analysis_instructions}",
-        },
-    ]
+    with open(audio_path, "rb") as audio_file:
+        result = client.audio.transcriptions.create(
+            model="gpt-4o-transcribe",
+            file=audio_file,
+            response_format="json",
+            prompt=analysis_instructions
+        )
 
-    chat = client.chat.completions.create(model="gpt-4o", messages=messages)
-    content = chat.choices[0].message.content
-
-    try:
-        return json.loads(content)
-    except json.JSONDecodeError:
-        return {"resume": content}
+    return result.text
