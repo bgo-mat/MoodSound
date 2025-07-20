@@ -164,17 +164,17 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
                   </View>
                 </View>
 
-                {step === 'done' && (
-                    <>
-                        <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Parfait !</Text>
-                        {videoUploading && !uploadError && (
-                            <Text style={{ color: '#fff', marginTop: 8 }}>Upload video...</Text>
-                        )}
-                        {uploadError && (
-                            <Text style={{ color: '#ff8080', marginTop: 8 }}>Erreur lors de l'upload</Text>
-                        )}
-                    </>
-                )}
+                {/*{step === 'done' && (*/}
+                {/*    <>*/}
+                {/*        <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Parfait !</Text>*/}
+                {/*        {videoUploading && !uploadError && (*/}
+                {/*            <Text style={{ color: '#fff', marginTop: 8 }}>Upload video...</Text>*/}
+                {/*        )}*/}
+                {/*        {uploadError && (*/}
+                {/*            <Text style={{ color: '#ff8080', marginTop: 8 }}>Erreur lors de l'upload</Text>*/}
+                {/*        )}*/}
+                {/*    </>*/}
+                {/*)}*/}
                 {/*{step === 'recording' && (*/}
                 {/*    <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Enregistrement...</Text>*/}
                 {/*)}*/}
