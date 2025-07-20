@@ -19,7 +19,7 @@ These data are sent to several AI models (video, audio, and text analysis) which
 
 ---
 
-## 🧑‍💻 Getting Started (local setup)
+## Getting Started (local setup)
 
 ### Clone the repository
 
