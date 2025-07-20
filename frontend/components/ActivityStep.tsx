@@ -1,157 +1,144 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
-import { Accelerometer } from 'expo-sensors';
-import * as Location from 'expo-location';
 import { useMood } from '../services/mood';
+import api, {uploadFile} from '../services/api';
+import { Audio } from 'expo-av';
 import Svg, { Circle } from 'react-native-svg';
-import { EventSubscription } from 'expo-modules-core';
-import { LocationSubscription } from "expo-location";
 
+const DURATION = 5;
 const strokeWidth = 7;
 const radius = 46;
 const circumference = 2 * Math.PI * radius;
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-export const ActivityLevel = {
-  LOW: 'low',
-  MEDIUM: 'medium',
-  HIGH: 'high',
-};
+export default function MicrophoneStep({ onNext }: { onNext: () => void }) {
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [uri, setUri] = useState<string | null>(null);
+  const {setAudioUri, setAudioUrl, setAudioUploading, audioUploading} = useMood();
+  const [uploadError, setUploadError] = useState<boolean>(false);
 
-export const SpeedLevel = {
-  STILL: 'still',
-  WALK: 'walk',
-  RUN: 'run',
-  DRIVE: 'drive'
-};
+  const timerRef = useRef<number | null >(null);
+  const recordingRef = useRef<Audio.Recording | null>(null);
 
-function getActivityLevel(avgNorm: number) {
-  if (avgNorm < 1.05) return ActivityLevel.LOW;
-  if (avgNorm < 1.2) return ActivityLevel.MEDIUM;
-  return ActivityLevel.HIGH;
-}
-function getSpeedLevel(avgSpeed: number) {
-  if (avgSpeed < 0.3) return SpeedLevel.STILL;
-  if (avgSpeed < 2) return SpeedLevel.WALK;
-  if (avgSpeed < 6) return SpeedLevel.RUN;
-  return SpeedLevel.DRIVE;
-}
-
-export default function ActivityStep({ onNext }: { onNext: () => void }) {
-  const { setActivityData } = useMood();
-  const normArray = useRef<number[]>([]);
-  const speedArray = useRef<number[]>([]);
-  const accelSub = useRef<EventSubscription | null>(null);
-  const locSub = useRef<LocationSubscription | null>(null);
-
+  // Animation progress border (de 0 à 1 sur DURATION)
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const [done, setDone] = useState(false);
 
-  useEffect(() => {
-    let timer: number | null;
-
-    const startSensors = async () => {
-
-      progressAnim.setValue(0);
-      Animated.timing(progressAnim, {
-        toValue: 1,
-        duration: 5000,
-        useNativeDriver: false,
-        easing: Easing.linear,
-      }).start();
-
-      // ici, on suppose que la permission est déjà granted
-      normArray.current = [];
-      speedArray.current = [];
-
-      accelSub.current = Accelerometer.addListener(data => {
-        const norm = Math.sqrt(data.x ** 2 + data.y ** 2 + data.z ** 2);
-        normArray.current.push(norm);
-      });
-      Accelerometer.setUpdateInterval(200);
-
-      locSub.current = await Location.watchPositionAsync(
-          {
-            accuracy: Location.Accuracy.Highest,
-            timeInterval: 1000,
-            distanceInterval: 1,
-          },
-          (location) => {
-            const speed = location.coords.speed !== null && location.coords.speed >= 0
-                ? location.coords.speed
-                : 0;
-            speedArray.current.push(speed);
-          }
-      );
-
-      timer = setTimeout(() => {
-        stopSensors();
-      }, 5000);
-    };
-
-    const askPermissionAndStart = async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        startSensors();
-      }
-      if (status === 'denied') {
-        if (onNext) onNext();
-      }
-    };
-
-    askPermissionAndStart();
-
-    return () => {
-      if (timer) clearTimeout(timer);
-      if (accelSub.current) accelSub.current.remove();
-      if (locSub.current) locSub.current.remove();
-    };
-  }, []);
-
-  const stopSensors = async () => {
-    if (accelSub.current) accelSub.current.remove();
-    if (locSub.current) await locSub.current.remove();
-
-    const avgNorm =
-        normArray.current.length > 0
-            ? normArray.current.reduce((a, b) => a + b, 0) / normArray.current.length
-            : 0;
-    const avgSpeed =
-        speedArray.current.length > 0
-            ? speedArray.current.reduce((a, b) => a + b, 0) / speedArray.current.length
-            : 0;
-
-    const activityLevel = getActivityLevel(avgNorm);
-    const speedLevel = getSpeedLevel(avgSpeed);
-
-    setActivityData({
-      activityLevel,
-      speedLevel,
-    });
-
-    setDone(true);
-    setTimeout(() => {
-      if (onNext) onNext();
-    }, 1300);
-  };
-
+  // Interpolation du cercle SVG
   const animatedStrokeDashoffset = progressAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [circumference, 0],
   });
 
+  // Enregistrement auto au montage
+  useEffect(() => {
+    progressAnim.setValue(0);
+
+    const startRecording = async () => {
+      if (recordingRef.current) {
+        try {
+          await recordingRef.current.stopAndUnloadAsync();
+        } catch {
+        }
+        recordingRef.current = null;
+      }
+      try {
+        const {granted} = await Audio.requestPermissionsAsync();
+        if (!granted) {
+          if (onNext) onNext();
+          return;
+        }
+
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        });
+
+        const rec = new Audio.Recording();
+        recordingRef.current = rec;
+
+        await rec.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+        await rec.startAsync();
+        setRecording(rec);
+        setUri(null);
+
+        // Animation du cercle progressif
+        Animated.timing(progressAnim, {
+          toValue: 1,
+          duration: DURATION * 1000,
+          useNativeDriver: false,
+          easing: Easing.linear
+        }).start();
+
+        // Stop auto après DURATION
+        // @ts-ignore
+        timerRef.current = setTimeout(() => {
+          stopRecording(rec);
+        }, DURATION * 1000);
+      } catch (err) {
+        setRecording(null);
+        recordingRef.current = null;
+        if (onNext) onNext();
+      }
+    };
+
+    startRecording();
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (recordingRef.current) {
+        recordingRef.current.stopAndUnloadAsync().catch(() => {
+        });
+        recordingRef.current = null;
+      }
+      progressAnim.setValue(0);
+    };
+    // eslint-disable-next-line
+  }, []);
+
+  const stopRecording = async (recToStop?: Audio.Recording) => {
+    const rec = recToStop ?? recordingRef.current;
+    if (!rec) return;
+    try {
+      await rec.stopAndUnloadAsync();
+      const uri = rec.getURI();
+      setUri(uri);
+      setAudioUri(uri ?? null);
+      if (uri) {
+        setAudioUploading(true);
+        uploadFile('/upload-audio/', uri, 'audio/m4a')
+            .then(url => {
+              setAudioUrl(url);
+            })
+            .catch((e) => {
+              setUploadError(true)
+              console.log(e)
+            })
+            .finally(() => setAudioUploading(false));
+      }
+      setTimeout(() => {
+        if (onNext) onNext();
+      }, 1300);
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setRecording(null);
+      recordingRef.current = null;
+    }
+  };
+
   return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <View style={styles.loaderContainer}>
+      <View style={styles.bg}>
+        <View style={styles.circleContainer}>
           <Svg width={2 * (radius + strokeWidth)} height={2 * (radius + strokeWidth)} style={StyleSheet.absoluteFill}>
+            {/* Cercle BG */}
             <Circle
                 cx={radius + strokeWidth}
                 cy={radius + strokeWidth}
                 r={radius}
-                stroke="#284657"
+                stroke="#333a"
                 strokeWidth={strokeWidth}
                 fill="none"
             />
+            {/* Cercle progressif */}
             <AnimatedCircle
                 cx={radius + strokeWidth}
                 cy={radius + strokeWidth}
@@ -164,20 +151,31 @@ export default function ActivityStep({ onNext }: { onNext: () => void }) {
                 strokeLinecap="round"
             />
           </Svg>
-          <Text style={styles.emoji}>{done ? '✅' : '🚶‍♂️'}</Text>
+          <Text style={styles.emoji}>{uri ? '✅' : '🎤'}</Text>
         </View>
-        <Text style={styles.loaderText}>{done ? 'Parfait !' : 'Analyse de ton activité en cours...'}</Text>
+        <Text style={styles.title}>
+          {recording ? "Enregistrement audio en cours..." : "Parfait !"}
+        </Text>
       </View>
   );
 }
 
+// Pour AnimatedCircle
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
 const styles = StyleSheet.create({
-  loaderContainer: {
+  bg: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 25,
+  },
+  circleContainer: {
     width: 2 * (radius + strokeWidth),
     height: 2 * (radius + strokeWidth),
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 32,
+    marginBottom: 32,
   },
   emojiCircle: {
     backgroundColor: '#2227',
@@ -197,7 +195,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     textAlign: 'center',
   },
-  loaderText: {
+  title: {
     color: '#fff',
     fontSize: 22,
     fontWeight: '600',
@@ -205,4 +203,21 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center'
   },
+  error: {
+    color: '#ff8080',
+    marginTop: 8,
+  },
+  upload: {
+    color: '#fff',
+    marginTop: 8,
+  },
+  uri: {
+    color: '#fff',
+    opacity: 0.77,
+    fontSize: 14,
+    marginTop: 24,
+    textAlign: 'center',
+    maxWidth: 260
+  }
 });
+

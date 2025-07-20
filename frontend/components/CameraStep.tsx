@@ -156,6 +156,12 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
                         <Text style={{ fontSize: 54, textAlign: 'center', color: '#fff', zIndex: 2 }}>🎥</Text>
                     )}
                   </View>
+                  {step === 'recording' && (
+                      <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold', marginTop:4 }}>Enregistrement...</Text>
+                  )}
+                  {step === 'done' && (
+                      <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' , marginTop:4}}>Parfait !</Text>
+                  )}
                 </View>
               </View>
           )}
