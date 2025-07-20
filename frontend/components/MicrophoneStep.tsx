@@ -146,12 +146,12 @@ export default function MicrophoneStep({ onNext }: { onNext: () => void }) {
         <Text style={styles.title}>
           {recording ? "Enregistrement audio en cours..." : "Parfait !"}
         </Text>
-        {audioUploading && !uploadError && (
-          <Text style={styles.upload}>Upload audio...</Text>
-        )}
-        {uploadError && (
-          <Text style={styles.error}>Erreur lors de l'upload</Text>
-        )}
+        {/*{audioUploading && !uploadError && (*/}
+        {/*  <Text style={styles.upload}>Upload audio...</Text>*/}
+        {/*)}*/}
+        {/*{uploadError && (*/}
+        {/*  <Text style={styles.error}>Erreur lors de l'upload</Text>*/}
+        {/*)}*/}
       </View>
   );
 }

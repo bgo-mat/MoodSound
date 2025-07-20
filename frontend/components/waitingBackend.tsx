@@ -56,7 +56,7 @@ export default function WaitingBackend() {
                 <Animated.View style={[styles.barLoaderFill, { width: barWidth }]} />
             </View>
             <Text style={styles.waitHint}>
-                Cela prend quelques secondes&nbsp;: <Text style={{ fontWeight: 'bold', color: '#fff' }}>reste zen&nbsp;!</Text>
+                Cela prend quelques secondes&nbsp;: <Text style={{ fontWeight: 'bold', color: '#50f3bb' }}>reste zen&nbsp;!</Text>
             </Text>
         </View>
     );

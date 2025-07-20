@@ -175,9 +175,9 @@ export default function CameraStep({ onNext }: { onNext: () => void }) {
                         )}
                     </>
                 )}
-                {step === 'recording' && (
-                    <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Enregistrement...</Text>
-                )}
+                {/*{step === 'recording' && (*/}
+                {/*    <Text style={{ color: '#fff', fontSize: 19, fontWeight: 'bold' }}>Enregistrement...</Text>*/}
+                {/*)}*/}
               </View>
           )}
         </View>

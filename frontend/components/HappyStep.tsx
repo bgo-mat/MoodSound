@@ -143,5 +143,5 @@ const styles = StyleSheet.create({
     },
     smiley: { fontSize: 34, opacity: 0.6 },
     smileySelected: { opacity: 1 },
-    label: { color: '#fff', fontSize: 16, marginTop: 10 },
+    label: { color: '#50f3bb', fontSize: 16, marginTop: 10 },
 });

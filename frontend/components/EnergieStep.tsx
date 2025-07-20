@@ -105,12 +105,6 @@ export default function EnergieStep({ onNext }: { onNext: () => void }) {
                                 >
                                     {item.emoji}
                                 </MotiText>
-                                <Text style={[
-                                    styles.label,
-                                    energy === item.label && styles.labelSelected
-                                ]}>
-                                    {item.label}
-                                </Text>
                             </TouchableOpacity>
                         </MotiView>
                     ))}
@@ -139,7 +133,7 @@ const styles = StyleSheet.create({
     },
     emoji: { fontSize: 32, opacity: 0.65 },
     emojiSelected: { opacity: 1 },
-    label: { color: '#fff', marginTop: 5, fontSize: 13, opacity: 0.65 },
+    label: { color: '#50f3bb', marginTop: 5, fontSize: 13, opacity: 0.65 },
     labelSelected: { opacity: 1, fontWeight: 'bold' },
     status: { color: '#fff', fontSize: 15, marginTop: 12 },
 });

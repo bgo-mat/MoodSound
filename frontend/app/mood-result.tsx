@@ -8,10 +8,14 @@ import {router} from "expo-router";
 const { width: screenWidth } = Dimensions.get("window");
 
 export default function MoodResult() {
-    const { tracksData } = usePreviewSong();
+    const { tracksData,setTracksData } = usePreviewSong();
     const [playingIdx, setPlayingIdx] = useState<number | null>(null);
     const soundRef = useRef<Audio.Sound | null>(null);
 
+    const restart = ()=>{
+        setTracksData([]);
+        router.push('/test-mood')
+    }
     // Fonction pour jouer la preview
     const playPreview = async (url: string, idx: number) => {
         try {
@@ -92,7 +96,7 @@ export default function MoodResult() {
                 showsHorizontalScrollIndicator={false}
                 ItemSeparatorComponent={() => <View style={{ width: 24 }} />}
             />
-            <TouchableOpacity style={styles.buttonRecord} onPress={() => router.push('/test-mood')}>
+            <TouchableOpacity style={styles.buttonRecord} onPress={() => restart()}>
                 <Text style={styles.text}>Recommencer</Text>
             </TouchableOpacity>
         </View>

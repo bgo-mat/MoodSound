@@ -28,7 +28,7 @@ const PreviewSongContext = createContext<PreviewSongContextType | undefined>(und
 
 export const PreviewSongProvider = ({ children }: { children: ReactNode }) => {
     const [musics, setMusics] = useState<string[]>([]);
-    const [tracksData, setTracksData] = useState<SpotifyTrack[]>([]);
+    const [tracksData, setTracksData] = useState<SpotifyTrack[]  >([]);
     const [spotifyToken, setSpotifyToken] = useState<string | null>(null);
     const [spotifyClientToken, setSpotifyClientToken] = useState<string | null>(null);
     const [spotifySecretToken, setSpotifySecretToken] = useState<string | null>(null);
